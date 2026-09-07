@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Tactical grid overlay for command consoles */
+.bg-tactical-grid {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+.bg-tactical-dots {
+  background-size: 16px 16px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+}
+
+/* High-precision corner notch accents */
+.corner-notch {
+  position: relative;
+}
+.corner-notch::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
+}
+.corner-notch::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 6px;
+  height: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-right: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Leaflet dark theme tweaks and custom pin styles */
+.leaflet-container {
+  font-family: inherit;
+  background-color: #000000 !important;
+}
+
+.custom-incident-pin,
+.custom-vehicle-pin {
+  background: transparent;
+  border: none;
+}
+
+/* Custom sleek scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #262626;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}
+
+/* Animated micro-interaction keyframes matching user's video demo */
+@keyframes iconRing {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(-15deg); }
+  40% { transform: rotate(13deg); }
+  60% { transform: rotate(-9deg); }
+  80% { transform: rotate(5deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes iconHeartbeat {
+  0%, 100% { transform: scale(1); }
+  20% { transform: scale(1.22); }
+  40% { transform: scale(0.96); }
+  60% { transform: scale(1.15); }
+  80% { transform: scale(1); }
+}
+
+@keyframes iconShiftRight {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+@keyframes iconShiftDiagonal {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(3px, -3px); }
+}
+
+@keyframes iconSpin360 {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Micro-interaction classes for icons */
+.icon-anim-ring {
+  transform-origin: top center;
+  transition: transform 0.2s ease;
+}
+.group:hover .icon-anim-ring,
+button:hover .icon-anim-ring,
+.icon-anim-ring:hover {
+  animation: iconRing 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.icon-anim-spin {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.group:hover .icon-anim-spin,
+button:hover .icon-anim-spin,
+.icon-anim-spin:hover {
+  animation: iconSpin360 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.icon-anim-gear {
+  transition: transform 0.4s ease;
+}
+.group:hover .icon-anim-gear,
+button:hover .icon-anim-gear,
+.icon-anim-gear:hover {
+  transform: rotate(90deg);
+}
+
+.icon-anim-pulse {
+  transition: transform 0.25s ease;
+}
+.group:hover .icon-anim-pulse,
+button:hover .icon-anim-pulse,
+.icon-anim-pulse:hover {
+  animation: iconPulse 0.5s ease-in-out both;
+}
+
+.icon-anim-heart {
+  transition: transform 0.2s ease;
+}
+.group:hover .icon-anim-heart,
+button:hover .icon-anim-heart,
+.icon-anim-heart:hover {
+  animation: iconHeartbeat 0.6s ease-in-out both;
+}
+
+.icon-anim-shift {
+  transition: transform 0.25s ease;
+}
+.group:hover .icon-anim-shift,
+button:hover .icon-anim-shift,
+.icon-anim-shift:hover {
+  animation: iconShiftRight 0.5s ease-in-out both;
+}
+
+.icon-anim-diagonal {
+  transition: transform 0.25s ease;
+}
+.group:hover .icon-anim-diagonal,
+button:hover .icon-anim-diagonal,
+.icon-anim-diagonal:hover {
+  animation: iconShiftDiagonal 0.5s ease-in-out both;
+}
+
+.icon-anim-pop {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.group:hover .icon-anim-pop,
+button:hover .icon-anim-pop,
+.icon-anim-pop:hover {
+  transform: scale(1.18);
+}
+
+/* Tactical Leaflet Map Customization */
+.leaflet-popup-content-wrapper {
+  background: #000000 !important;
+  color: #f1f3f7 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.9) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-tip {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-container {
+  background: #000000 !important;
+  font-family: inherit !important;
+}
+

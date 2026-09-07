@@ -1,0 +1,6 @@
+{
+  "name": "NER Intelligence Platform",
+  "description": "Regional Logistics & Accessibility Intelligence for the North Eastern corridor with real-time geospatial intelligence, road accessibility metrics, and AI-assisted disaster routing.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
