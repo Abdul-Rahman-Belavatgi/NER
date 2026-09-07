@@ -88,11 +88,19 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   ? 'bg-white/10 text-slate-200 border border-white/20'
                   : 'bg-slate-100 text-slate-800 border border-slate-300'
               }`}>
-                {currentUser.roleBadge}
+                {currentUser.role === 'field'
+                  ? at.operatorRolePublic || 'Public Traveler'
+                  : currentUser.role === 'dispatcher'
+                  ? at.operatorRoleLogistics || 'Fleet Dispatcher'
+                  : at.operatorRoleAuthority || 'Disaster Nodal'}
               </span>
             </div>
             <div className={`text-xs ${textMuted} mt-1`}>
-              {currentUser.roleTitle}
+              {currentUser.role === 'field'
+                ? at.rolePublicTitle || 'Public Traveler / Driver'
+                : currentUser.role === 'dispatcher'
+                ? at.roleLogisticsTitle || 'Logistics & Fleet Operator'
+                : at.roleAuthorityTitle || 'Highway Authority & Disaster Nodal'}
             </div>
           </div>
         </div>
@@ -143,7 +151,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <span>Arjun Das</span>
             </div>
             <div className={`text-[11px] mt-1 ${currentUser.role === 'admin' && theme === 'light' ? 'text-slate-300' : textMuted}`}>
-              Regional Control Officer
+              {at.roleAuthorityTitle || 'Highway Authority & Disaster Nodal'}
             </div>
           </button>
 
@@ -164,7 +172,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <span>B. Borah</span>
             </div>
             <div className={`text-[11px] mt-1 ${textMuted}`}>
-              Fleet Dispatcher
+              {at.roleLogisticsTitle || 'Logistics & Fleet Operator'}
             </div>
           </button>
 
@@ -185,7 +193,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <span>Priya Sharma</span>
             </div>
             <div className={`text-[11px] mt-1 ${textMuted}`}>
-              Field Response Officer
+              {at.rolePublicTitle || 'Public Traveler / Driver'}
             </div>
           </button>
         </div>

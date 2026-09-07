@@ -31,7 +31,7 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
   const [layers, setLayers] = useState({
     weatherRadar: true,
     incidents: true,
-    vehicles: !isPublic, // Hidden for public users
+    vehicles: true, // Accessible for all users including public travelers/drivers
     roadStatus: true,
   });
 
@@ -46,7 +46,6 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
   const handleToggleLayer = (
     key: 'weatherRadar' | 'incidents' | 'vehicles' | 'roadStatus'
   ) => {
-    if (isPublic && key === 'vehicles') return; // Enforce public restriction
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -75,8 +74,8 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
     return true;
   });
 
-  // For public users, fleet vehicles are never rendered
-  const mapVehicles = isPublic ? [] : vehicles;
+  // Fleet vehicles are available for map tracking across all roles
+  const mapVehicles = vehicles;
 
   return (
     <div className="space-y-3 pb-6 flex flex-col h-[calc(100vh-6rem)]">
@@ -111,11 +110,11 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
             }`}
           >
             <option value="All">{at.incidentsFilterAllDistricts || 'District: All'}</option>
-            <option value="East Jaintia Hills">East Jaintia Hills</option>
-            <option value="East Khasi Hills">East Khasi Hills</option>
-            <option value="Ri-Bhoi">Ri-Bhoi</option>
-            <option value="Kamrup Metropolitan">Kamrup Metropolitan</option>
-            <option value="Cachar">Cachar</option>
+            <option value="East Jaintia Hills">{at.districtEastJaintia || 'East Jaintia Hills'}</option>
+            <option value="East Khasi Hills">{at.districtEastKhasi || 'East Khasi Hills'}</option>
+            <option value="Ri-Bhoi">{at.districtRiBhoi || 'Ri-Bhoi'}</option>
+            <option value="Kamrup Metropolitan">{at.districtKamrupMetro || 'Kamrup Metropolitan'}</option>
+            <option value="Cachar">{at.districtCachar || 'Cachar'}</option>
           </select>
           {(activeFilters.roadStatus || activeFilters.district) && (
             <button
@@ -176,17 +175,17 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
                 </div>
                 <div>
                   <div className={`text-xs font-bold ${textPrimary}`}>
-                    {visibleIncidents.length} Verified Road Hazards
+                    {visibleIncidents.length} {at.publicCardVerifiedHazards || 'Verified Road Hazards'}
                   </div>
                   <div className={`text-[11px] ${textMuted}`}>
-                    Read-only corridor safety bulletins
+                    {at.publicCardHazardsSub || 'Read-only corridor safety bulletins'}
                   </div>
                 </div>
               </div>
               <button className={`text-xs font-semibold ${
                 theme === 'dark' ? 'text-neutral-300 group-hover:text-white' : 'text-slate-800 group-hover:text-black'
               } flex items-center gap-1`}>
-                <span>View Bulletins</span>
+                <span>{at.publicCardViewBulletins || 'View Bulletins'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -204,15 +203,15 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
                 </div>
                 <div>
                   <div className={`text-xs font-bold ${textPrimary}`}>
-                    Weather &amp; Rain Warnings
+                    {at.publicCardWeatherWarnings || 'Weather & Rain Warnings'}
                   </div>
                   <div className={`text-[11px] ${textMuted}`}>
-                    Shillong, Silchar &amp; Guwahati
+                    {at.publicCardWeatherSub || 'Shillong, Silchar & Guwahati'}
                   </div>
                 </div>
               </div>
               <button className="text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-500 flex items-center gap-1">
-                <span>Check Radar</span>
+                <span>{at.publicCardCheckRadar || 'Check Radar'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -230,17 +229,17 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
                 </div>
                 <div>
                   <div className={`text-xs font-bold ${textPrimary}`}>
-                    Report Road Obstruction
+                    {at.publicCardReportObstruction || 'Report Road Obstruction'}
                   </div>
                   <div className={`text-[11px] ${textMuted}`}>
-                    Submit photo to disaster authority queue
+                    {at.publicCardReportSub || 'Submit photo to disaster authority queue'}
                   </div>
                 </div>
               </div>
               <button className={`text-xs font-semibold ${
                 theme === 'dark' ? 'text-amber-400 group-hover:text-amber-300' : 'text-amber-700 group-hover:text-amber-900'
               } flex items-center gap-1`}>
-                <span>Report Hazard</span>
+                <span>{at.publicCardReportHazard || 'Report Hazard'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -260,15 +259,15 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
                 </div>
                 <div>
                   <div className={`text-xs font-bold ${textPrimary}`}>
-                    Incident Verification Queue
+                    {at.authorityCardQueueTitle || 'Incident Verification Queue'}
                   </div>
                   <div className={`text-[11px] ${textMuted}`}>
-                    Review &amp; approve citizen hazard reports
+                    {at.authorityCardQueueSub || 'Review & approve citizen hazard reports'}
                   </div>
                 </div>
               </div>
               <button className="text-xs font-semibold text-amber-500 flex items-center gap-1">
-                <span>Open Queue</span>
+                <span>{at.authorityCardOpenQueue || 'Open Queue'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -286,17 +285,17 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
                 </div>
                 <div>
                   <div className={`text-xs font-bold ${textPrimary}`}>
-                    Corridor Health &amp; Saturation
+                    {at.authorityCardCorridorHealth || 'Corridor Health & Saturation'}
                   </div>
                   <div className={`text-[11px] ${textMuted}`}>
-                    District slope stability &amp; roadblocks
+                    {at.authorityCardCorridorSub || 'District slope stability & roadblocks'}
                   </div>
                 </div>
               </div>
               <button className={`text-xs font-semibold ${
                 theme === 'dark' ? 'text-neutral-300 group-hover:text-white' : 'text-slate-800 group-hover:text-black'
               } flex items-center gap-1`}>
-                <span>Dashboard</span>
+                <span>{at.authorityCardDashboard || 'Dashboard'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -314,15 +313,15 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
                 </div>
                 <div>
                   <div className={`text-xs font-bold ${textPrimary}`}>
-                    Rainfall &amp; Weather Radar
+                    {at.authorityCardRainfallRadar || 'Rainfall & Weather Radar'}
                   </div>
                   <div className={`text-[11px] ${textMuted}`}>
-                    Regional precipitation telemetry
+                    {at.authorityCardRadarSub || 'Regional precipitation telemetry'}
                   </div>
                 </div>
               </div>
               <button className="text-xs font-semibold text-blue-500 flex items-center gap-1">
-                <span>View Radar</span>
+                <span>{at.authorityCardViewRadar || 'View Radar'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

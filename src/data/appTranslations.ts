@@ -435,6 +435,43 @@ export interface AppTranslations {
   headerServerOffline?: string;
   headerReportIncident?: string;
   verificationQueueTitle?: string;
+
+  // Roles
+  rolePublicTitle?: string;
+  roleAuthorityTitle?: string;
+  roleLogisticsTitle?: string;
+
+  // Map Quick Action Cards
+  publicCardVerifiedHazards?: string;
+  publicCardHazardsSub?: string;
+  publicCardViewBulletins?: string;
+  publicCardWeatherWarnings?: string;
+  publicCardWeatherSub?: string;
+  publicCardCheckRadar?: string;
+  publicCardReportObstruction?: string;
+  publicCardReportSub?: string;
+  publicCardReportHazard?: string;
+
+  authorityCardQueueTitle?: string;
+  authorityCardQueueSub?: string;
+  authorityCardOpenQueue?: string;
+  authorityCardCorridorHealth?: string;
+  authorityCardCorridorSub?: string;
+  authorityCardDashboard?: string;
+  authorityCardRainfallRadar?: string;
+  authorityCardRadarSub?: string;
+  authorityCardViewRadar?: string;
+
+  // Districts
+  districtEastKhasi?: string;
+  districtEastJaintia?: string;
+  districtRiBhoi?: string;
+  districtKamrupMetro?: string;
+  districtCachar?: string;
+
+  // Misc
+  dashCorridorStripTitle?: string;
+  weatherRainUnit?: string;
 }
 
 export const APP_TRANSLATIONS: Record<LanguageCode, AppTranslations> = {
@@ -1950,6 +1987,34 @@ const EXTRA_TRANSLATIONS: Record<LanguageCode, Partial<AppTranslations>> = {
     headerServerOffline: 'Server Offline / Local Cache',
     headerReportIncident: 'Report Incident',
     modalSeverityLevel: 'Severity Level',
+    rolePublicTitle: 'Public Traveler / Driver',
+    roleAuthorityTitle: 'Highway Authority & Disaster Nodal',
+    roleLogisticsTitle: 'Logistics & Fleet Operator',
+    publicCardVerifiedHazards: 'Verified Road Hazards',
+    publicCardHazardsSub: 'Read-only corridor safety bulletins',
+    publicCardViewBulletins: 'View Bulletins',
+    publicCardWeatherWarnings: 'Weather & Rain Warnings',
+    publicCardWeatherSub: 'Shillong, Silchar & Guwahati',
+    publicCardCheckRadar: 'Check Radar',
+    publicCardReportObstruction: 'Report Road Obstruction',
+    publicCardReportSub: 'Submit photo to disaster authority queue',
+    publicCardReportHazard: 'Report Hazard',
+    authorityCardQueueTitle: 'Incident Verification Queue',
+    authorityCardQueueSub: 'Review & approve citizen hazard reports',
+    authorityCardOpenQueue: 'Open Queue',
+    authorityCardCorridorHealth: 'Corridor Health & Saturation',
+    authorityCardCorridorSub: 'District slope stability & roadblocks',
+    authorityCardDashboard: 'Dashboard',
+    authorityCardRainfallRadar: 'Rainfall & Weather Radar',
+    authorityCardRadarSub: 'Regional precipitation telemetry',
+    authorityCardViewRadar: 'View Radar',
+    districtEastKhasi: 'East Khasi Hills',
+    districtEastJaintia: 'East Jaintia Hills',
+    districtRiBhoi: 'Ri-Bhoi',
+    districtKamrupMetro: 'Kamrup Metropolitan',
+    districtCachar: 'Cachar',
+    dashCorridorStripTitle: 'Meghalaya – Assam Corridor',
+    weatherRainUnit: 'Rain',
   },
   as: {
     logisticsApprove: 'বিতৰণ অনুমোদন কৰক',
@@ -1985,6 +2050,34 @@ const EXTRA_TRANSLATIONS: Record<LanguageCode, Partial<AppTranslations>> = {
     headerServerOffline: 'চাৰ্ভাৰ অফলাইন / স্থানীয় কেচ',
     headerReportIncident: 'পথ দুৰ্ঘটনাৰ প্ৰতিবেদন দিয়ক',
     modalSeverityLevel: 'বিপদৰ তীব্ৰতাৰ স্তৰ',
+    rolePublicTitle: 'সাধাৰণ যাত্ৰী / চালক',
+    roleAuthorityTitle: 'ৰাষ্ট্ৰীয় ঘাইপথ প্ৰাধিকৰণ আৰু দুৰ্যোগ ন’ডেল',
+    roleLogisticsTitle: 'পৰিবহণ আৰু ফ্লিট অপাৰেটৰ',
+    publicCardVerifiedHazards: 'প্ৰমাণিত পথৰ বিপদসমূহ',
+    publicCardHazardsSub: 'কৰিডৰ সুৰক্ষা নিৰ্দেশাৱলী',
+    publicCardViewBulletins: 'বুলেটিন চাওক',
+    publicCardWeatherWarnings: 'বতৰ আৰু বৰষুণৰ সতৰ্কবাণী',
+    publicCardWeatherSub: 'শ্বিলং, শিলচৰ আৰু গুৱাহাটী',
+    publicCardCheckRadar: 'ৰাডাৰ চাওক',
+    publicCardReportObstruction: 'পথৰ বাধাৰ প্ৰতিবেদন দিয়ক',
+    publicCardReportSub: 'দুৰ্যোগ প্ৰাধিকৰণৰ শাৰীত ছবি দাখিল কৰক',
+    publicCardReportHazard: 'বিপদৰ প্ৰতিবেদন দিয়ক',
+    authorityCardQueueTitle: 'ঘটনা পৰীক্ষণ শাৰী',
+    authorityCardQueueSub: 'নাগৰিকৰ বিপদ প্ৰতিবেদন পৰীক্ষা আৰু অনুমোদন',
+    authorityCardOpenQueue: 'শাৰী খোলক',
+    authorityCardCorridorHealth: 'কৰিডৰ অৱস্থা আৰু চাপ',
+    authorityCardCorridorSub: 'জিলা পাহাৰৰ সুস্থিৰতা আৰু পথৰ বাধা',
+    authorityCardDashboard: 'ডেশ্ববৰ্ড',
+    authorityCardRainfallRadar: 'বৰষুণ আৰু বতৰৰ ৰাডাৰ',
+    authorityCardRadarSub: 'আঞ্চলিক বৃষ্টিপাত টেলিমিত্ৰি',
+    authorityCardViewRadar: 'ৰাডাৰ চাওক',
+    districtEastKhasi: 'পূব খাছী পাহাৰ',
+    districtEastJaintia: 'পূব জয়ন্তীয়া পাহাৰ',
+    districtRiBhoi: 'ৰি-ভৈ',
+    districtKamrupMetro: 'কামৰূপ মহানগৰ',
+    districtCachar: 'কাছাৰ',
+    dashCorridorStripTitle: 'মেঘালয় – অসম কৰিডৰ',
+    weatherRainUnit: 'বৰষুণ',
   },
   bn: {
     logisticsApprove: 'ডেলিভারি অনুমোদন করুন',
@@ -2020,6 +2113,34 @@ const EXTRA_TRANSLATIONS: Record<LanguageCode, Partial<AppTranslations>> = {
     headerServerOffline: 'সার্ভার অফলাইন / স্থানীয় ক্যাশ',
     headerReportIncident: 'সড়ক দুর্ঘটনার রিপোর্ট করুন',
     modalSeverityLevel: 'বিপদের মাত্রার স্তর',
+    rolePublicTitle: 'সাধারণ যাত্রী / চালক',
+    roleAuthorityTitle: 'হাইওয়ে কর্তৃপক্ষ ও বিপর্যয় নোডাল',
+    roleLogisticsTitle: 'লজিস্টিক ও ফ্লিট অপারেটর',
+    publicCardVerifiedHazards: 'যাচাইকৃত সড়ক ঝুঁকি',
+    publicCardHazardsSub: 'করিডোর সুরক্ষা নির্দেশিকা',
+    publicCardViewBulletins: 'বুলেটিন দেখুন',
+    publicCardWeatherWarnings: 'আবহাওয়া ও বৃষ্টির সতর্কতা',
+    publicCardWeatherSub: 'শিলং, শিলচর ও গুয়াহাটি',
+    publicCardCheckRadar: 'রাডার দেখুন',
+    publicCardReportObstruction: 'সড়ক বাধার রিপোর্ট করুন',
+    publicCardReportSub: 'দুর্যোগ কর্তৃপক্ষের সারিতে ছবি জমা দিন',
+    publicCardReportHazard: 'ঝুঁকি রিপোর্ট করুন',
+    authorityCardQueueTitle: 'ঘটনা যাচাইকরণ সারি',
+    authorityCardQueueSub: 'নাগরিকদের ঝুঁকি রিপোর্ট পর্যালোচনা ও অনুমোদন',
+    authorityCardOpenQueue: 'সারি খুলুন',
+    authorityCardCorridorHealth: 'করিডোর স্বাস্থ্য ও স্যাচুরেশন',
+    authorityCardCorridorSub: 'জেলা ঢাল স্থিতিশীলতা ও রোডব্লক',
+    authorityCardDashboard: 'ড্যাশবোর্ড',
+    authorityCardRainfallRadar: 'বৃষ্টিপাত ও আবহাওয়া রাডার',
+    authorityCardRadarSub: 'আঞ্চলিক বৃষ্টিপাত টেলিমেট্রি',
+    authorityCardViewRadar: 'রাডার দেখুন',
+    districtEastKhasi: 'পূর্ব খাসি পাহাড়',
+    districtEastJaintia: 'পূর্ব জয়ন্তিয়া পাহাড়',
+    districtRiBhoi: 'রি-ভোই',
+    districtKamrupMetro: 'কামরূপ মহানগর',
+    districtCachar: 'কাছাড়',
+    dashCorridorStripTitle: 'মেঘালয় – আসাম করিডোর',
+    weatherRainUnit: 'বৃষ্টি',
   },
   hi: {
     logisticsApprove: 'वितरण स्वीकृत करें',
@@ -2055,6 +2176,34 @@ const EXTRA_TRANSLATIONS: Record<LanguageCode, Partial<AppTranslations>> = {
     headerServerOffline: 'सर्वर ऑफ़लाइन / स्थानीय कैश',
     headerReportIncident: 'सड़क घटना की रिपोर्ट करें',
     modalSeverityLevel: 'गंभीरता का स्तर',
+    rolePublicTitle: 'सार्वजनिक यात्री / चालक',
+    roleAuthorityTitle: 'राजमार्ग प्राधिकरण एवं आपदा नोडल',
+    roleLogisticsTitle: 'लॉजिस्टिक्स एवं फ्लीट ऑपरेटर',
+    publicCardVerifiedHazards: 'सत्यापित सड़क खतरे',
+    publicCardHazardsSub: 'केवल पढ़ने योग्य गलियारा सुरक्षा बुलेटिन',
+    publicCardViewBulletins: 'बुलेटिन देखें',
+    publicCardWeatherWarnings: 'मौसम और बारिश की चेतावनी',
+    publicCardWeatherSub: 'शिलांग, सिलचर और गुवाहाटी',
+    publicCardCheckRadar: 'रडार देखें',
+    publicCardReportObstruction: 'सड़क अवरोध की रिपोर्ट करें',
+    publicCardReportSub: 'आपदा प्रबंधन कतार में फोटो भेजें',
+    publicCardReportHazard: 'खतरे की रिपोर्ट करें',
+    authorityCardQueueTitle: 'घटना सत्यापन कतार',
+    authorityCardQueueSub: 'नागरिकों की रिपोर्ट की समीक्षा और अनुमोदन',
+    authorityCardOpenQueue: 'कतार खोलें',
+    authorityCardCorridorHealth: 'गलियारा स्थिति और घनत्व',
+    authorityCardCorridorSub: 'जिला ढलान स्थिरता और सड़क अवरोध',
+    authorityCardDashboard: 'डैशबोर्ड',
+    authorityCardRainfallRadar: 'वर्षा एवं मौसम रडार',
+    authorityCardRadarSub: 'क्षेत्रीय वर्षा टेलीमेट्री',
+    authorityCardViewRadar: 'रडार देखें',
+    districtEastKhasi: 'पूर्वी खासी हिल्स',
+    districtEastJaintia: 'पूर्वी जयंतिया हिल्स',
+    districtRiBhoi: 'री-भोई',
+    districtKamrupMetro: 'कामरूप महानगर',
+    districtCachar: 'कछार',
+    dashCorridorStripTitle: 'मेघालय – असम गलियारा',
+    weatherRainUnit: 'बारिश',
   },
   kha: {
     logisticsApprove: 'Mynjur Jingkit',
@@ -2090,6 +2239,34 @@ const EXTRA_TRANSLATIONS: Record<LanguageCode, Partial<AppTranslations>> = {
     headerServerOffline: 'Server Offline / Local Cache',
     headerReportIncident: 'Pyntip Jingeh Surok',
     modalSeverityLevel: 'Kyrdan Jingmaham',
+    rolePublicTitle: 'Nongleit Nongwan / Nongniah',
+    roleAuthorityTitle: 'Bor Surok & Disaster Nodal',
+    roleLogisticsTitle: 'Logistics & Fleet Operator',
+    publicCardVerifiedHazards: 'Ki Jingeh Surok ba la Sakhi',
+    publicCardHazardsSub: 'Ki khubor shngain na ka bynta ka lynti',
+    publicCardViewBulletins: 'Peit ia ki Khubor',
+    publicCardWeatherWarnings: 'Jingmaham Suinbneng & Slap',
+    publicCardWeatherSub: 'Shillong, Silchar & Guwahati',
+    publicCardCheckRadar: 'Peit Radar',
+    publicCardReportObstruction: 'Pyntip Jingeh ha Surok',
+    publicCardReportSub: 'Phah dur sha ka queue bor',
+    publicCardReportHazard: 'Pyntip Jingeh',
+    authorityCardQueueTitle: 'Incident Verification Queue',
+    authorityCardQueueSub: 'Peit & pynskhem ia ki report',
+    authorityCardOpenQueue: 'Plie Queue',
+    authorityCardCorridorHealth: 'Koit-Khiah & Jingbun Kali Surok',
+    authorityCardCorridorSub: 'Jingshngain riat & jingdheng surok',
+    authorityCardDashboard: 'Dashboard',
+    authorityCardRainfallRadar: 'Jingslap & Suinbneng Radar',
+    authorityCardRadarSub: 'Jingthew slap ha ka thain',
+    authorityCardViewRadar: 'Peit Radar',
+    districtEastKhasi: 'East Khasi Hills',
+    districtEastJaintia: 'East Jaintia Hills',
+    districtRiBhoi: 'Ri-Bhoi',
+    districtKamrupMetro: 'Kamrup Metropolitan',
+    districtCachar: 'Cachar',
+    dashCorridorStripTitle: 'Meghalaya – Assam Corridor',
+    weatherRainUnit: 'Slap',
   },
   mni: {
     logisticsApprove: 'ꯄꯣꯠ ꯌꯧꯕ ꯑꯌꯥꯕ ꯄꯤꯌꯨ',
@@ -2125,6 +2302,34 @@ const EXTRA_TRANSLATIONS: Record<LanguageCode, Partial<AppTranslations>> = {
     headerServerOffline: 'ꯁꯔꯚꯔ ꯑꯣꯐꯂꯥꯏꯟ / ꯂꯣꯀꯦꯜ ꯀꯦꯁ',
     headerReportIncident: 'ꯂꯝꯕꯤ ꯈꯨꯗꯣꯡꯊꯤꯕ ꯔꯤꯄꯣꯔ꯭ꯠ ꯇꯧꯕꯤꯌꯨ',
     modalSeverityLevel: 'ꯈꯨꯗꯣꯡꯊꯤꯕꯒꯤ ꯆꯥꯡ',
+    rolePublicTitle: 'ꯃꯤꯌꯥꯃꯒꯤ ꯂꯝꯕꯣꯏꯕ / ꯒꯥꯔꯤ ꯊꯧꯕ',
+    roleAuthorityTitle: 'ꯍꯥꯏꯋꯦ ꯑꯣꯊꯣꯔꯤꯇꯤ ꯑꯃꯁꯨꯡ ꯂꯩꯄꯥꯛ ꯑꯋꯥꯕ ꯅꯣꯗꯦꯜ',
+    roleLogisticsTitle: 'ꯂꯣꯖꯤꯁ꯭ꯇꯤꯛꯁ ꯑꯃꯁꯨꯡ ꯒꯥꯔꯤ ꯃꯆꯥ ꯑꯣꯄꯔꯦꯇꯔ',
+    publicCardVerifiedHazards: 'ꯌꯥꯔꯕ ꯂꯝꯕꯤꯒꯤ ꯈꯨꯗꯣꯡꯊꯤꯕꯁꯤꯡ',
+    publicCardHazardsSub: 'ꯀꯣꯔꯤꯗꯣꯔꯒꯤ ꯆꯦꯛꯁꯤꯟ-ꯊꯧꯔꯥꯡ',
+    publicCardViewBulletins: 'ꯕꯨꯂꯦꯇꯤꯟ ꯌꯦꯡꯕꯤꯌꯨ',
+    publicCardWeatherWarnings: 'ꯅꯣꯡ-ꯅꯨꯡꯁꯤꯠꯀꯤ ꯆꯦꯛꯁꯤꯟꯋꯥ',
+    publicCardWeatherSub: 'ꯁꯤꯂꯣꯡ, ꯁꯤꯂꯆꯔ ꯑꯃꯁꯨꯡ ꯒꯨꯋꯥꯍꯥꯇꯤ',
+    publicCardCheckRadar: 'ꯔꯥꯗꯥꯔ ꯌꯦꯡꯕꯤꯌꯨ',
+    publicCardReportObstruction: 'ꯂꯝꯕꯤ ꯊꯤꯡꯕ ꯔꯤꯄꯣꯔ꯭ꯠ ꯇꯧꯕꯤꯌꯨ',
+    publicCardReportSub: 'ꯑꯋꯥꯕ ꯊꯣꯛꯄ ꯃꯇꯝꯗ ꯐꯣꯇꯣ ꯊꯥꯕꯤꯌꯨ',
+    publicCardReportHazard: 'ꯈꯨꯗꯣꯡꯊꯤꯕ ꯔꯤꯄꯣꯔ꯭ꯠ ꯇꯧꯕꯤꯌꯨ',
+    authorityCardQueueTitle: 'ꯊꯧꯗꯣꯛ ꯌꯦꯡꯁꯤꯟꯕꯒꯤ ꯂꯥꯏꯟ',
+    authorityCardQueueSub: 'ꯃꯤꯌꯥꯃꯒꯤ ꯔꯤꯄꯣꯔ꯭ꯠ ꯌꯦꯡꯁꯤꯟꯕ ꯑꯃꯁꯨꯡ ꯌꯥꯕ',
+    authorityCardOpenQueue: 'ꯂꯥꯏꯟ ꯍꯥꯡꯗꯣꯛꯎ',
+    authorityCardCorridorHealth: 'ꯀꯣꯔꯤꯗꯣꯔꯒꯤ ꯐꯤꯚꯝ',
+    authorityCardCorridorSub: 'ꯖꯤꯂꯥꯒꯤ ꯂꯝꯕꯤ ꯆꯦꯡꯕ',
+    authorityCardDashboard: 'ꯗꯦꯁꯕꯣꯔ꯭ꯗ',
+    authorityCardRainfallRadar: 'ꯅꯣꯡ ꯑꯃꯁꯨꯡ ꯅꯨꯡꯁꯤꯠꯀꯤ ꯔꯥꯗꯥꯔ',
+    authorityCardRadarSub: 'ꯅꯣꯡ ꯆꯨꯕꯒꯤ ꯈꯪꯗꯣꯛꯄ',
+    authorityCardViewRadar: 'ꯔꯥꯗꯥꯔ ꯌꯦꯡꯕꯤꯌꯨ',
+    districtEastKhasi: 'ꯅꯣꯡꯄꯣꯛ ꯈꯥꯁꯤ ꯆꯤꯡꯁꯥꯡ',
+    districtEastJaintia: 'ꯅꯣꯡꯄꯣꯛ ꯖꯥꯏꯟꯇꯤꯌꯥ ꯆꯤꯡꯁꯥꯡ',
+    districtRiBhoi: 'ꯔꯤ-ꯚꯣꯏ',
+    districtKamrupMetro: 'ꯀꯥꯃꯔꯨꯞ ꯃꯦꯠꯔꯣ',
+    districtCachar: 'ꯀꯆꯥꯔ',
+    dashCorridorStripTitle: 'ꯃꯦꯘꯥꯂꯌꯥ – ꯑꯁꯥꯝ ꯀꯣꯔꯤꯗꯣꯔ',
+    weatherRainUnit: 'ꯅꯣꯡ',
   },
 };
 

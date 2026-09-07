@@ -268,7 +268,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 : 'bg-white/95 border-slate-300 text-slate-800'
             }`}>
               <span className="text-emerald-500">📍</span>
-              <span className="font-semibold">Meghalaya – Assam Corridor</span>
+              <span className="font-semibold">{at.dashCorridorStripTitle || 'Meghalaya – Assam Corridor'}</span>
               <span className={theme === 'dark' ? 'text-neutral-600' : 'text-slate-400'}>•</span>
               <span className={`text-[11px] ${textMuted}`}>25.58°N, 91.89°E</span>
             </div>
