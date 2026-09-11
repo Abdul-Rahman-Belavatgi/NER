@@ -489,9 +489,14 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 {/* Dropdown Selector as noted on Image 1 */}
                 <div className="space-y-3 mb-4">
                   <div>
-                    <label className={`block text-[11px] font-mono uppercase font-bold tracking-wider mb-1.5 ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
-                      {t.selectPortalSector}
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className={`block text-[11px] font-mono uppercase font-bold tracking-wider ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
+                        {t.selectPortalSector}
+                      </label>
+                      <span className={`text-[11px] font-mono uppercase font-bold tracking-wider ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
+                        (FOR EXAMPLE)
+                      </span>
+                    </div>
                     <div className="relative">
                       <select
                         value={category}
