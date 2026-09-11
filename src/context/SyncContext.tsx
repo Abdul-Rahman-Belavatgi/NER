@@ -32,7 +32,9 @@ interface SyncContextType {
 const SyncContext = createContext<SyncContextType | undefined>(undefined);
 
 export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [browserOnline, setBrowserOnline] = useState<boolean>(navigator.onLine);
+  const [browserOnline, setBrowserOnline] = useState<boolean>(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
   const [isServerReachable, setIsServerReachable] = useState<boolean>(true);
   const [isManualOfflineSimulated, setIsManualOfflineSimulated] = useState<boolean>(false);
   const [syncQueue, setSyncQueue] = useState<SyncQueueItem[]>([]);
@@ -49,14 +51,9 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return unsubscribe;
   }, []);
 
-  // Check server health periodically
+  // Background health check - checks server without overriding default live status
   const checkHealth = useCallback(async (): Promise<boolean> => {
-    if (isManualOfflineSimulated) {
-      setIsServerReachable(false);
-      return false;
-    }
-    if (!navigator.onLine) {
-      setIsServerReachable(false);
+    if (isManualOfflineSimulated || (typeof navigator !== 'undefined' && !navigator.onLine)) {
       return false;
     }
     try {
@@ -64,12 +61,36 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const timeout = setTimeout(() => controller.abort(), 4000);
       const res = await fetch('/api/health', { signal: controller.signal });
       clearTimeout(timeout);
-      const ok = res.ok;
-      setIsServerReachable(ok);
-      return ok;
-    } catch {
-      setIsServerReachable(false);
+      if (res.ok) {
+        setIsServerReachable(true);
+        return true;
+      }
       return false;
+    } catch {
+      return false;
+    }
+  }, [isManualOfflineSimulated]);
+
+  // Overall effective online status:
+  // Defaults to Live Server Connected (true).
+  // Only changes to offline if the user explicitly switches it (isManualOfflineSimulated)
+  // or if the browser loses network connection (browserOnline === false).
+  const isOnline = browserOnline && !isManualOfflineSimulated;
+  const serverStatus: 'connected' | 'offline' = isOnline ? 'connected' : 'offline';
+
+  // Automatically sync pending items when transitioning to online
+  const triggerSync = useCallback(async () => {
+    if (isManualOfflineSimulated || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+      return { synced: 0, failed: 0 };
+    }
+
+    setIsSyncing(true);
+    try {
+      const result = await SyncService.syncAllPending();
+      setLastSyncTime(new Date().toLocaleTimeString());
+      return result;
+    } finally {
+      setIsSyncing(false);
     }
   }, [isManualOfflineSimulated]);
 
@@ -77,12 +98,8 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const handleOnline = () => {
       setBrowserOnline(true);
-      checkHealth().then((reachable) => {
-        if (reachable) {
-          // Auto-sync when connectivity returns
-          triggerSync();
-        }
-      });
+      setIsServerReachable(true);
+      triggerSync();
     };
 
     const handleOffline = () => {
@@ -95,38 +112,14 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Initial check and periodic heartbeat
     checkHealth();
-    const interval = setInterval(checkHealth, 15000);
+    const interval = setInterval(checkHealth, 30000);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       clearInterval(interval);
     };
-  }, [checkHealth]);
-
-  // Overall effective online status
-  const isOnline = browserOnline && isServerReachable && !isManualOfflineSimulated;
-  const serverStatus: 'connected' | 'offline' = isOnline ? 'connected' : 'offline';
-
-  // Automatically sync pending items when transitioning to online
-  const triggerSync = useCallback(async () => {
-    if (!isOnline && !isManualOfflineSimulated) {
-      const reachable = await checkHealth();
-      if (!reachable) return { synced: 0, failed: 0 };
-    }
-    if (isManualOfflineSimulated) {
-      return { synced: 0, failed: 0 };
-    }
-
-    setIsSyncing(true);
-    try {
-      const result = await SyncService.syncAllPending();
-      setLastSyncTime(new Date().toLocaleTimeString());
-      return result;
-    } finally {
-      setIsSyncing(false);
-    }
-  }, [isOnline, isManualOfflineSimulated, checkHealth]);
+  }, [checkHealth, triggerSync]);
 
   // Enqueue new record with state tracking
   const enqueueRecord = useCallback(
@@ -179,18 +172,17 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsManualOfflineSimulated((prev) => {
       const next = !prev;
       if (!next) {
-        // Turning back online -> trigger auto sync!
+        // Turning back to Live Server Connected -> trigger sync
+        setIsServerReachable(true);
         setTimeout(() => {
-          checkHealth().then((ok) => {
-            if (ok) triggerSync();
-          });
-        }, 300);
+          triggerSync();
+        }, 200);
       } else {
         setIsServerReachable(false);
       }
       return next;
     });
-  }, [checkHealth, triggerSync]);
+  }, [triggerSync]);
 
   const clearSyncedRecords = useCallback(() => {
     SyncService.clearSyncedRecords();

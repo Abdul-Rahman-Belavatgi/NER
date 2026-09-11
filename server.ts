@@ -7,8 +7,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentDir = typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 
 async function startServer() {
   const app = express();
@@ -24,7 +23,7 @@ async function startServer() {
   // Client sync batch endpoint (for offline queue reconciliation)
   app.post('/api/sync', (req, res) => {
     try {
-      const { records } = req.body;
+      const records = req.body.records || req.body.items || [];
       if (!Array.isArray(records)) {
         return res.status(400).json({ error: 'records array expected' });
       }
@@ -38,6 +37,7 @@ async function startServer() {
         syncedCount: syncedIds.length,
         syncedIds,
         timestamp,
+        serverTimestamp: timestamp,
       });
     } catch (err: any) {
       res.status(500).json({ error: err.message || 'Sync failed' });
