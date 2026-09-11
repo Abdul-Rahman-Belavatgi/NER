@@ -682,57 +682,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
                           <span>{t.signInFleetBtn}</span>
                           <ArrowRight strokeWidth={2} className="w-4 h-4 ml-1" />
                         </button>
-
-                        {/* Quick 1-Click Role Access */}
-                        <div className={`pt-3 border-t ${isDark ? 'border-neutral-800' : 'border-slate-200'} space-y-2`}>
-                          <div className="flex items-center justify-between">
-                            <span className={`text-[10px] font-mono uppercase tracking-wider font-bold ${textMuted}`}>
-                              Instant 1-Click Sign In
-                            </span>
-                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
-                              Direct Access
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <button
-                              type="button"
-                              onClick={() => onLogin('dispatcher')}
-                              className={`p-2 rounded-xl text-left border text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                                isDark
-                                  ? 'bg-neutral-900/80 hover:bg-neutral-800 border-[#262626] text-white hover:border-emerald-500/50'
-                                  : 'bg-slate-50 hover:bg-white border-slate-200 text-slate-900 hover:border-emerald-500/50 shadow-sm'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Truck className="w-4 h-4 text-emerald-400 shrink-0" />
-                                <div>
-                                  <div className="text-[11px] font-bold">Logistics Operator</div>
-                                  <div className={`text-[9px] ${textSubtle}`}>Fleet &amp; Detours</div>
-                                </div>
-                              </div>
-                              <ArrowRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => onLogin('admin')}
-                              className={`p-2 rounded-xl text-left border text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                                isDark
-                                  ? 'bg-neutral-900/80 hover:bg-neutral-800 border-[#262626] text-white hover:border-purple-500/50'
-                                  : 'bg-slate-50 hover:bg-white border-slate-200 text-slate-900 hover:border-purple-500/50 shadow-sm'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Shield className="w-4 h-4 text-purple-400 shrink-0" />
-                                <div>
-                                  <div className="text-[11px] font-bold">Govt Authority</div>
-                                  <div className={`text-[9px] ${textSubtle}`}>BRO &amp; Police Command</div>
-                                </div>
-                              </div>
-                              <ArrowRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                            </button>
-                          </div>
-                        </div>
                       </form>
                     )}
 
@@ -926,57 +875,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
                           <span>{t.accessCommandBtn}</span>
                           <ArrowRight strokeWidth={2} className="w-4 h-4 ml-1" />
                         </button>
-
-                        {/* Quick 1-Click Role Access */}
-                        <div className={`pt-3 border-t ${isDark ? 'border-neutral-800' : 'border-slate-200'} space-y-2`}>
-                          <div className="flex items-center justify-between">
-                            <span className={`text-[10px] font-mono uppercase tracking-wider font-bold ${textMuted}`}>
-                              Instant 1-Click Sign In
-                            </span>
-                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-semibold">
-                              Direct Access
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <button
-                              type="button"
-                              onClick={() => onLogin('admin')}
-                              className={`p-2 rounded-xl text-left border text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                                isDark
-                                  ? 'bg-neutral-900/80 hover:bg-neutral-800 border-[#262626] text-white hover:border-purple-500/50'
-                                  : 'bg-slate-50 hover:bg-white border-slate-200 text-slate-900 hover:border-purple-500/50 shadow-sm'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Shield className="w-4 h-4 text-purple-400 shrink-0" />
-                                <div>
-                                  <div className="text-[11px] font-bold">Govt Authority</div>
-                                  <div className={`text-[9px] ${textSubtle}`}>BRO &amp; Police Command</div>
-                                </div>
-                              </div>
-                              <ArrowRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => onLogin('dispatcher')}
-                              className={`p-2 rounded-xl text-left border text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                                isDark
-                                  ? 'bg-neutral-900/80 hover:bg-neutral-800 border-[#262626] text-white hover:border-emerald-500/50'
-                                  : 'bg-slate-50 hover:bg-white border-slate-200 text-slate-900 hover:border-emerald-500/50 shadow-sm'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Truck className="w-4 h-4 text-emerald-400 shrink-0" />
-                                <div>
-                                  <div className="text-[11px] font-bold">Logistics Operator</div>
-                                  <div className={`text-[9px] ${textSubtle}`}>Fleet &amp; Detours</div>
-                                </div>
-                              </div>
-                              <ArrowRight className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                            </button>
-                          </div>
-                        </div>
                       </form>
                     )}
 
