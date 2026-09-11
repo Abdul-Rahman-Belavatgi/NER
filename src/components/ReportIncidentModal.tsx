@@ -9,10 +9,15 @@ import {
   Send,
   CheckCircle2,
   Image as ImageIcon,
-  Trash2
+  Trash2,
+  RadioTower,
+  CloudCheck,
+  CloudOff
 } from 'lucide-react';
 import { Incident, UserProfile, isPublicUser, isAuthorityUser, isLogisticsUser } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { useSync } from '../context/SyncContext';
+import { AlternativeCommModal } from './AlternativeCommModal';
 
 interface ReportIncidentModalProps {
   isOpen: boolean;
@@ -30,6 +35,9 @@ export const ReportIncidentModal: React.FC<ReportIncidentModalProps> = ({
   theme = 'dark',
 }) => {
   const { at } = useLanguage();
+  const { enqueueRecord, isOnline } = useSync();
+  const [isAltCommOpen, setIsAltCommOpen] = useState(false);
+
   // Field values matching Screenshot 3
   const [incidentType, setIncidentType] = useState('Landslide');
   const [severity, setSeverity] = useState<'low' | 'medium' | 'critical'>('medium');
@@ -207,20 +215,30 @@ export const ReportIncidentModal: React.FC<ReportIncidentModalProps> = ({
     e.preventDefault();
     if (!landmark || !description) return;
 
-    onSubmit({
+    const newIncidentPayload = {
       title: `${incidentType} near ${landmark}`,
       location: `${district}, ${state}`,
       district,
       state,
       landmark,
-      coordinates: [latitude, longitude],
+      coordinates: [latitude, longitude] as [number, number],
       status: roadStatus,
-      severity: severity === 'critical' ? 'critical' : severity === 'medium' ? 'medium' : 'low',
+      severity: severity === 'critical' ? 'critical' : severity === 'medium' ? 'medium' : 'low' as const,
       timestamp: 'Just now',
       delayText: roadStatus === 'BLOCKED' ? '> 4 Hours' : roadStatus === 'RESTRICTED' ? '45 - 90 mins' : '< 15 mins',
       hazardType: incidentType,
       description,
       photoUrl: photoUrl || undefined,
+    };
+
+    // 1. Submit to active app state
+    onSubmit(newIncidentPayload);
+
+    // 2. Persist in durable sync queue with retry & offline handling
+    enqueueRecord({
+      entityType: 'incident',
+      action: 'CREATE',
+      data: newIncidentPayload,
     });
 
     onClose();
@@ -614,7 +632,7 @@ export const ReportIncidentModal: React.FC<ReportIncidentModalProps> = ({
 
           {/* Footer Action Bar */}
           <div className={`pt-3 border-t ${cardBorder} flex items-center justify-between`}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={handleSaveDraft}
@@ -628,6 +646,36 @@ export const ReportIncidentModal: React.FC<ReportIncidentModalProps> = ({
                   <span>Draft saved</span>
                 </span>
               )}
+
+              {/* Live sync network badge */}
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px]">
+                {isOnline ? (
+                  <span className="text-emerald-500 flex items-center gap-1 font-mono">
+                    <CloudCheck className="w-3.5 h-3.5" />
+                    <span>Auto-Sync</span>
+                  </span>
+                ) : (
+                  <span className="text-amber-500 flex items-center gap-1 font-mono">
+                    <CloudOff className="w-3.5 h-3.5" />
+                    <span>Offline Cache Enabled</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Alt-Comm trigger */}
+              <button
+                type="button"
+                onClick={() => setIsAltCommOpen(true)}
+                className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-mono border ${
+                  theme === 'dark'
+                    ? 'border-[#262626] bg-[#0a0a0a] text-sky-400 hover:text-white'
+                    : 'border-slate-300 bg-slate-100 text-sky-700 hover:text-slate-900'
+                }`}
+                title="Off-Grid SMS, Radio, Satellite Payload"
+              >
+                <RadioTower className="w-3 h-3" />
+                <span>Off-Grid Dispatch</span>
+              </button>
             </div>
 
             <button
@@ -644,6 +692,19 @@ export const ReportIncidentModal: React.FC<ReportIncidentModalProps> = ({
           </div>
         </form>
       </div>
+
+      <AlternativeCommModal
+        isOpen={isAltCommOpen}
+        onClose={() => setIsAltCommOpen(false)}
+        theme={theme}
+        draftData={{
+          type: incidentType,
+          landmark,
+          location: `${district}, ${state}`,
+          status: roadStatus,
+          coordinates: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+        }}
+      />
     </div>
   );
 };

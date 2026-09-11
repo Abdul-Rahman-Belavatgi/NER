@@ -11,10 +11,13 @@ import {
   ShieldAlert,
   CheckCircle,
   MapPin,
-  X
+  X,
+  CloudCheck,
+  CloudOff
 } from 'lucide-react';
 import { Shipment } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { useSync } from '../context/SyncContext';
 
 interface LogisticsViewProps {
   shipments: Shipment[];
@@ -30,6 +33,7 @@ export const LogisticsView: React.FC<LogisticsViewProps> = ({
   theme = 'dark',
 }) => {
   const { at } = useLanguage();
+  const { enqueueRecord, isOnline } = useSync();
   const [localShipments, setLocalShipments] = useState<Shipment[]>(shipments);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -99,9 +103,20 @@ export const LogisticsView: React.FC<LogisticsViewProps> = ({
       onAddShipment(newShp);
     }
 
+    // Persist in sync queue with idempotency
+    enqueueRecord({
+      entityType: 'consignment',
+      action: 'CREATE',
+      data: newShp,
+    });
+
     setIsModalOpen(false);
-    setSuccessNotice(`Consignment ${newShipmentCode} created and assigned to ${truck}!`);
-    setTimeout(() => setSuccessNotice(null), 5000);
+    setSuccessNotice(
+      isOnline
+        ? `Consignment ${newShipmentCode} created and synchronized with live network!`
+        : `Consignment ${newShipmentCode} saved to local storage! Queued for auto-upload upon reconnection.`
+    );
+    setTimeout(() => setSuccessNotice(null), 6000);
   };
 
   return (

@@ -85,8 +85,8 @@ export default function App() {
     const profile = OPERATOR_PROFILES[role] || OPERATOR_PROFILES.admin;
     setCurrentUser(profile);
     if (isPublicUser(role)) {
-      // Public users only have access to map, incidents, weather, fieldReporting, alerts
-      if (['dashboard', 'routes', 'logistics', 'vehicles', 'verificationQueue'].includes(currentTab)) {
+      // Public users have access to map, vehicles (fleet tracking), incidents, weather, fieldReporting, alerts
+      if (['dashboard', 'routes', 'logistics', 'verificationQueue'].includes(currentTab)) {
         setCurrentTab('map');
       }
     } else if (isAuthorityUser(role)) {
@@ -182,6 +182,13 @@ export default function App() {
         return inc;
       })
     );
+  };
+
+  const handleDeleteIncident = (incidentId: string) => {
+    setIncidents((prev) => prev.filter((inc) => inc.id !== incidentId));
+    if (selectedIncident?.id === incidentId) {
+      setSelectedIncident(null);
+    }
   };
 
   const handleAcknowledgeAlert = (id: string) => {
@@ -328,6 +335,7 @@ export default function App() {
               onSelectIncident={setSelectedIncident}
               onOpenReportModal={() => setIsReportModalOpen(true)}
               onNavigateTab={handleNavigateTab}
+              onDeleteIncident={handleDeleteIncident}
               theme={theme}
             />
           )}

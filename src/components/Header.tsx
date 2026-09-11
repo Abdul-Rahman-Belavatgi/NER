@@ -15,11 +15,18 @@ import {
   Activity,
   Radio,
   Globe,
-  ChevronDown
+  ChevronDown,
+  CloudUpload,
+  Wifi,
+  WifiOff,
+  RadioTower
 } from 'lucide-react';
 import { UserProfile, UserRole, isPublicUser, isAuthorityUser, isLogisticsUser } from '../types';
 import { LANGUAGES, LanguageCode, TRANSLATIONS } from '../data/translations';
 import { useLanguage } from '../context/LanguageContext';
+import { useSync } from '../context/SyncContext';
+import { SyncQueueModal } from './SyncQueueModal';
+import { AlternativeCommModal } from './AlternativeCommModal';
 
 interface HeaderProps {
   currentTab: string;
@@ -52,7 +59,20 @@ export const Header: React.FC<HeaderProps> = ({
   const currentLang = propLang || contextLang;
   const [timeStr, setTimeStr] = useState<string>('');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-  const [isServerOnline, setIsServerOnline] = useState(true);
+  const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
+
+  const {
+    isOnline,
+    toggleSimulateOffline,
+    syncQueue,
+    isSyncing,
+    syncNow,
+    pendingCount,
+    failedCount,
+    isAltCommModalOpen,
+    setIsAltCommModalOpen,
+  } = useSync();
+
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
   useEffect(() => {
@@ -124,10 +144,10 @@ export const Header: React.FC<HeaderProps> = ({
         {/* System Status Indicator: Live Server Connected / Offline Toggle */}
         <button
           type="button"
-          onClick={() => setIsServerOnline((prev) => !prev)}
-          title={isServerOnline ? "Click to switch to Server Offline / Local Cache" : "Click to switch to Live Server Connected"}
+          onClick={toggleSimulateOffline}
+          title={isOnline ? "Click to switch to Server Offline / Local Cache (Simulate Network Drop)" : "Click to switch to Live Server Connected"}
           className={`whitespace-nowrap shrink-0 flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-medium cursor-pointer transition select-none hover:shadow-sm active:scale-95 ${
-            isServerOnline
+            isOnline
               ? theme === 'dark'
                 ? 'bg-[#0a0a0a] border-[#262626] text-neutral-200 hover:border-emerald-500/60'
                 : 'bg-slate-100 border-slate-300 text-slate-700 hover:border-emerald-500'
@@ -136,17 +156,55 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'bg-rose-50 border-rose-300 text-rose-800 hover:border-rose-400'
           }`}
         >
-          {isServerOnline ? (
+          {isOnline ? (
             <>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="leading-none whitespace-nowrap font-medium">{at.headerLiveServerConnected || t.liveServerConnected}</span>
+              <span className="leading-none whitespace-nowrap font-medium">{at.headerLiveServerConnected || 'Server Connected'}</span>
             </>
           ) : (
             <>
               <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-              <span className="leading-none whitespace-nowrap font-medium">{at.headerServerOffline || 'Server Offline / Local Cache'}</span>
+              <span className="leading-none whitespace-nowrap font-medium">{at.headerServerOffline || 'Server Offline'}</span>
             </>
           )}
+        </button>
+
+        {/* Sync Queue Visual Status Indicator & Trigger */}
+        {(pendingCount > 0 || failedCount > 0) && (
+          <button
+            type="button"
+            onClick={() => setIsQueueModalOpen(true)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition cursor-pointer ${
+              failedCount > 0
+                ? 'bg-rose-950/60 border-rose-700 text-rose-300 hover:bg-rose-900/80'
+                : isSyncing
+                ? 'bg-indigo-950/60 border-indigo-700 text-indigo-300 animate-pulse'
+                : theme === 'dark'
+                ? 'bg-amber-950/60 border-amber-700 text-amber-300 hover:bg-amber-900/80'
+                : 'bg-amber-100 border-amber-300 text-amber-900 hover:bg-amber-200'
+            }`}
+            title="Open Sync Queue"
+          >
+            <CloudUpload className="w-3.5 h-3.5 shrink-0" />
+            <span>
+              {failedCount > 0 ? `${failedCount} Failed` : `${pendingCount} Pending`}
+            </span>
+          </button>
+        )}
+
+        {/* Off-Grid / Alt-Comm Trigger */}
+        <button
+          type="button"
+          onClick={() => setIsAltCommModalOpen(true)}
+          className={`hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-medium transition cursor-pointer ${
+            theme === 'dark'
+              ? 'border-[#262626] bg-[#0a0a0a] text-neutral-300 hover:text-white hover:border-neutral-500'
+              : 'border-slate-300 bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
+          }`}
+          title="Off-Grid Transmission Modes (SMS, HAM/VHF Radio, Satellite, QR)"
+        >
+          <RadioTower className="w-3.5 h-3.5 text-sky-400" />
+          <span className="text-[11px] font-mono">Alt-Comm</span>
         </button>
 
         {/* Live IST Monospace Clock */}
@@ -319,6 +377,21 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Sync Queue Modal */}
+      <SyncQueueModal
+        isOpen={isQueueModalOpen}
+        onClose={() => setIsQueueModalOpen(false)}
+        theme={theme}
+        currentUser={currentUser}
+      />
+
+      {/* Alternative Communication Modes Modal */}
+      <AlternativeCommModal
+        isOpen={isAltCommModalOpen}
+        onClose={() => setIsAltCommModalOpen(false)}
+        theme={theme}
+      />
     </header>
   );
 };

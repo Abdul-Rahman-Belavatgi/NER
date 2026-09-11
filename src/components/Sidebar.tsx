@@ -90,6 +90,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           title: at.navPublicSafetyTitle,
           items: [
             { id: 'map', label: at.navLiveHighwayMap, icon: Map },
+            { id: 'vehicles', label: at.navFleetTracking || 'Fleet Tracking', icon: Truck },
             { id: 'incidents', label: at.navActiveIncidentsFeed, icon: AlertTriangle },
             { id: 'weather', label: at.navWeatherRainAlerts, icon: CloudRain },
           ],
@@ -177,20 +178,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className={`p-4 flex items-center justify-between border-b ${
                 theme === 'dark' ? 'border-[#262626]' : 'border-slate-200'
               }`}>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center text-slate-950 shadow-md shadow-white/5 shrink-0">
-                    <Radio strokeWidth={2.25} className="w-5 h-5 icon-anim-pulse" />
+                <div className="flex items-center gap-2.5 overflow-hidden">
+                  <div className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 ${
+                    theme === 'dark' ? 'bg-white/10 border-white/15 text-slate-200' : 'bg-slate-100 border-slate-300 text-slate-800'
+                  }`}>
+                    <Radio strokeWidth={2.25} className="w-4 h-4 icon-anim-pulse" />
                   </div>
-                  <div>
-                    <div className={`text-sm font-bold tracking-tight leading-tight ${
+                  <div className="overflow-hidden">
+                    <div className={`text-xs font-bold tracking-wide uppercase truncate ${
                       theme === 'dark' ? 'text-white' : 'text-slate-900'
                     }`}>
-                      NER Intelligence
+                      {at.navCorridorOversightTitle || 'NER Intelligence'}
                     </div>
-                    <div className={`text-[10px] ${
+                    <div className={`text-[10px] flex items-center gap-1.5 truncate ${
                       theme === 'dark' ? 'text-neutral-400' : 'text-slate-500'
                     }`}>
-                      Regional Command
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                      <span>{at.navActiveSession || 'Regional Command'}</span>
                     </div>
                   </div>
                 </div>
@@ -301,26 +305,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
         } shrink-0 h-14`}>
           {!isCollapsed ? (
             <div className="flex items-center gap-2 overflow-hidden">
-              <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-slate-200 shrink-0 group">
+              <div className={`w-7 h-7 rounded-lg border flex items-center justify-center shrink-0 group ${
+                theme === 'dark' ? 'bg-white/10 border-white/15 text-slate-200' : 'bg-slate-100 border-slate-300 text-slate-800'
+              }`}>
                 <Radio strokeWidth={2.25} className="w-3.5 h-3.5 icon-anim-pulse" />
               </div>
               <div className="overflow-hidden">
                 <div className={`text-[11px] font-bold tracking-wide uppercase truncate ${
                   theme === 'dark' ? 'text-white' : 'text-slate-900'
                 }`}>
-                  {at.navCorridorOversightTitle}
+                  {at.navCorridorOversightTitle || 'NER Intelligence'}
                 </div>
                 <div className={`text-[9px] flex items-center gap-1 truncate ${
                   theme === 'dark' ? 'text-neutral-400' : 'text-slate-500'
                 }`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                  <span>{at.navActiveSession}</span>
+                  <span>{at.navActiveSession || 'Regional Command'}</span>
                 </div>
               </div>
             </div>
           ) : (
             <div className="mx-auto">
-              <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-slate-200 group">
+              <div className={`w-7 h-7 rounded-lg border flex items-center justify-center group ${
+                theme === 'dark' ? 'bg-white/10 border-white/15 text-slate-200' : 'bg-slate-100 border-slate-300 text-slate-800'
+              }`}>
                 <Radio strokeWidth={2.25} className="w-3.5 h-3.5 icon-anim-pulse" />
               </div>
             </div>

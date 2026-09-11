@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText,
   MapPin,
@@ -8,10 +8,15 @@ import {
   AlertTriangle,
   Compass,
   Send,
-  ShieldCheck
+  ShieldCheck,
+  RadioTower,
+  CloudCheck,
+  CloudOff
 } from 'lucide-react';
 import { Incident } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { useSync } from '../context/SyncContext';
+import { AlternativeCommModal } from './AlternativeCommModal';
 
 interface FieldReportingViewProps {
   onSubmitReport: (newIncident: Omit<Incident, 'id' | 'code' | 'timeAgo'>) => void;
@@ -25,6 +30,7 @@ export const FieldReportingView: React.FC<FieldReportingViewProps> = ({
   theme = 'dark',
 }) => {
   const { at } = useLanguage();
+  const { enqueueRecord, isOnline } = useSync();
   const [state, setState] = useState('Meghalaya');
   const [district, setDistrict] = useState('East Jaintia Hills');
   const [landmark, setLandmark] = useState('');
@@ -38,6 +44,37 @@ export const FieldReportingView: React.FC<FieldReportingViewProps> = ({
   const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1547683905-f686c993aae5?w=600&auto=format&fit=crop&q=80');
   const [broadcastAlert, setBroadcastAlert] = useState(true);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isAltCommOpen, setIsAltCommOpen] = useState(false);
+
+  // Restore draft from local storage if available
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem('ner_hazard_draft');
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed.landmark) setLandmark(parsed.landmark);
+        if (parsed.description) setDescription(parsed.description);
+        if (parsed.district) setDistrict(parsed.district);
+        if (parsed.hazardType) setHazardType(parsed.hazardType);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Save changes to local draft
+  useEffect(() => {
+    try {
+      localStorage.setItem('ner_hazard_draft', JSON.stringify({
+        landmark,
+        description,
+        district,
+        hazardType,
+      }));
+    } catch {
+      // ignore
+    }
+  }, [landmark, description, district, hazardType]);
 
   const cardBorder = theme === 'dark' ? 'border-[#262626]' : 'border-slate-200';
   const surfaceBg = theme === 'dark' ? 'bg-black' : 'bg-white shadow-sm';
@@ -69,13 +106,13 @@ export const FieldReportingView: React.FC<FieldReportingViewProps> = ({
     e.preventDefault();
     if (!landmark || !description) return;
 
-    onSubmitReport({
+    const payload = {
       title: `${hazardType} near ${landmark}`,
       location: `${district}, ${state}`,
       district,
       state,
       landmark,
-      coordinates: [parseFloat(latitude) || 25.578, parseFloat(longitude) || 91.893],
+      coordinates: [parseFloat(latitude) || 25.578, parseFloat(longitude) || 91.893] as [number, number],
       status,
       severity,
       timestamp: 'Just now',
@@ -83,7 +120,23 @@ export const FieldReportingView: React.FC<FieldReportingViewProps> = ({
       hazardType,
       description,
       photoUrl: photoUrl || undefined,
+    };
+
+    // 1. Submit to view callback
+    onSubmitReport(payload);
+
+    // 2. Add to persistent sync queue
+    enqueueRecord({
+      entityType: 'hazard',
+      action: 'CREATE',
+      data: payload,
     });
+
+    try {
+      localStorage.removeItem('ner_hazard_draft');
+    } catch {
+      // ignore
+    }
 
     setIsSuccess(true);
     setTimeout(() => {
@@ -106,18 +159,48 @@ export const FieldReportingView: React.FC<FieldReportingViewProps> = ({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAcquireLocation}
-          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition self-start sm:self-auto ${
-            theme === 'dark'
-              ? 'bg-[#0a0a0a] hover:bg-neutral-900 text-neutral-200 hover:text-white border-[#262626]'
-              : 'bg-white hover:bg-slate-100 text-slate-800 hover:text-black border-slate-300 shadow-sm'
-          }`}
-        >
-          <Compass className={`w-4 h-4 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`} />
-          <span>{at.fieldReportingUseLocation}</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono select-none">
+            {isOnline ? (
+              <span className="text-emerald-500 flex items-center gap-1.5">
+                <CloudCheck className="w-3.5 h-3.5" />
+                <span>Live Sync Active</span>
+              </span>
+            ) : (
+              <span className="text-amber-500 flex items-center gap-1.5">
+                <CloudOff className="w-3.5 h-3.5" />
+                <span>Offline Form Queuing</span>
+              </span>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsAltCommOpen(true)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition ${
+              theme === 'dark'
+                ? 'bg-[#0a0a0a] text-sky-400 border-[#262626] hover:text-white'
+                : 'bg-white text-sky-700 border-slate-300 hover:text-black shadow-sm'
+            }`}
+            title="Open Off-Grid Transmission Modes (SMS, HAM/VHF Radio, Satellite)"
+          >
+            <RadioTower className="w-4 h-4" />
+            <span>Off-Grid Dispatch</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAcquireLocation}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition self-start sm:self-auto ${
+              theme === 'dark'
+                ? 'bg-[#0a0a0a] hover:bg-neutral-900 text-neutral-200 hover:text-white border-[#262626]'
+                : 'bg-white hover:bg-slate-100 text-slate-800 hover:text-black border-slate-300 shadow-sm'
+            }`}
+          >
+            <Compass className={`w-4 h-4 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`} />
+            <span>{at.fieldReportingUseLocation}</span>
+          </button>
+        </div>
       </div>
 
       {/* Form Container */}
@@ -370,6 +453,19 @@ export const FieldReportingView: React.FC<FieldReportingViewProps> = ({
           </form>
         )}
       </div>
+
+      <AlternativeCommModal
+        isOpen={isAltCommOpen}
+        onClose={() => setIsAltCommOpen(false)}
+        theme={theme}
+        draftData={{
+          type: hazardType,
+          landmark,
+          location: `${district}, ${state}`,
+          status,
+          coordinates: `${latitude}, ${longitude}`,
+        }}
+      />
     </div>
   );
 };
