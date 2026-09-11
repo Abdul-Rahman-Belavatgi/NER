@@ -27,7 +27,6 @@ interface SyncContextType {
   setActiveCommMode: (mode: 'none' | 'ham' | 'satellite' | 'mesh') => void;
   setIsAltCommModalOpen: (open: boolean) => void;
   clearSyncedRecords: () => void;
-  removeRecord: (id: string) => void;
 }
 
 const SyncContext = createContext<SyncContextType | undefined>(undefined);
@@ -50,41 +49,31 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return unsubscribe;
   }, []);
 
-  // Check server health periodically with rapid network failure detection
+  // Check server health periodically
   const checkHealth = useCallback(async (): Promise<boolean> => {
     if (isManualOfflineSimulated) {
       setIsServerReachable(false);
       return false;
     }
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      setBrowserOnline(false);
+    if (!navigator.onLine) {
       setIsServerReachable(false);
       return false;
     }
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2000);
-      const res = await fetch(`/api/health?_t=${Date.now()}`, {
-        signal: controller.signal,
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' }
-      });
+      const timeout = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch('/api/health', { signal: controller.signal });
       clearTimeout(timeout);
       const ok = res.ok;
-      setBrowserOnline(true);
       setIsServerReachable(ok);
       return ok;
     } catch {
-      // Network unreachable or server down - immediately flip to offline
       setIsServerReachable(false);
-      if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        setBrowserOnline(false);
-      }
       return false;
     }
   }, [isManualOfflineSimulated]);
 
-  // Handle browser online/offline events & active heartbeat
+  // Handle browser online/offline events
   useEffect(() => {
     const handleOnline = () => {
       setBrowserOnline(true);
@@ -101,35 +90,16 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsServerReachable(false);
     };
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        checkHealth();
-      }
-    };
-
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    window.addEventListener('focus', checkHealth);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Network Information API change event (supported in Chromium/Edge/Android)
-    const conn = (navigator as any)?.connection;
-    if (conn && conn.addEventListener) {
-      conn.addEventListener('change', checkHealth);
-    }
-
-    // Initial check and periodic fast heartbeat (every 2 seconds for immediate automatic offline detection)
+    // Initial check and periodic heartbeat
     checkHealth();
-    const interval = setInterval(checkHealth, 2000);
+    const interval = setInterval(checkHealth, 15000);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('focus', checkHealth);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (conn && conn.removeEventListener) {
-        conn.removeEventListener('change', checkHealth);
-      }
       clearInterval(interval);
     };
   }, [checkHealth]);
@@ -226,10 +196,6 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
     SyncService.clearSyncedRecords();
   }, []);
 
-  const removeRecord = useCallback((id: string) => {
-    SyncService.removeItem(id);
-  }, []);
-
   const pendingCount = syncQueue.filter((i) => i.syncState === 'PENDING').length;
   const failedCount = syncQueue.filter((i) => i.syncState === 'FAILED').length;
   const syncedCount = syncQueue.filter((i) => i.syncState === 'SYNCHRONIZED').length;
@@ -256,7 +222,6 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveCommMode,
         setIsAltCommModalOpen,
         clearSyncedRecords,
-        removeRecord,
       }}
     >
       {children}

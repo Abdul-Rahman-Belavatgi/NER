@@ -10,8 +10,7 @@ import {
   Camera,
   CheckCircle,
   ShieldAlert,
-  ArrowRight,
-  Trash2
+  ArrowRight
 } from 'lucide-react';
 import { Incident, UserProfile, isPublicUser, isAuthorityUser, isLogisticsUser } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -22,7 +21,6 @@ interface IncidentsViewProps {
   onSelectIncident: (inc: Incident) => void;
   onOpenReportModal: () => void;
   onNavigateTab: (tab: string, context?: any) => void;
-  onDeleteIncident?: (id: string) => void;
   currentUser?: UserProfile;
   theme?: 'dark' | 'light';
 }
@@ -33,7 +31,6 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
   onSelectIncident,
   onOpenReportModal,
   onNavigateTab,
-  onDeleteIncident,
   currentUser,
   theme = 'dark',
 }) => {
@@ -41,12 +38,10 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
   const isPublic = currentUser ? isPublicUser(currentUser.role) : false;
   const isAuthority = currentUser ? isAuthorityUser(currentUser.role) : false;
   const isLogistics = currentUser ? isLogisticsUser(currentUser.role) : true;
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'authority';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [hazardFilter, setHazardFilter] = useState('all');
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const cardBorder = theme === 'dark' ? 'border-[#262626]' : 'border-slate-200';
   const surfaceBg = theme === 'dark' ? 'bg-black' : 'bg-white shadow-sm';
@@ -170,59 +165,9 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs mb-2">
-                    <div className="flex items-center gap-2">
-                      {isAdmin && onDeleteIncident && (
-                        confirmDeleteId === inc.id ? (
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1.5 bg-rose-950/90 border border-rose-600 px-2 py-0.5 rounded-lg text-xs"
-                          >
-                            <span className="text-rose-300 font-bold text-[10px]">Delete?</span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onDeleteIncident(inc.id);
-                                setConfirmDeleteId(null);
-                              }}
-                              className="px-1.5 py-0.5 rounded bg-rose-600 text-white font-bold text-[10px] hover:bg-rose-500"
-                            >
-                              Yes
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setConfirmDeleteId(null);
-                              }}
-                              className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300 text-[10px] hover:bg-neutral-700"
-                            >
-                              No
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setConfirmDeleteId(inc.id);
-                            }}
-                            className={`px-2 py-0.5 rounded-lg text-[11px] font-semibold flex items-center gap-1 border transition ${
-                              theme === 'dark'
-                                ? 'bg-rose-950/40 border-rose-800/60 text-rose-400 hover:bg-rose-900/60 hover:text-white'
-                                : 'bg-rose-50 border-rose-300 text-rose-700 hover:bg-rose-100 hover:text-rose-900'
-                            }`}
-                            title="Delete this incident (Admin Only)"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            <span>Delete</span>
-                          </button>
-                        )
-                      )}
-                      <span className={`font-mono font-bold ${textMuted}`}>
-                        {inc.code} • {inc.location}
-                      </span>
-                    </div>
+                    <span className={`font-mono font-bold ${textMuted}`}>
+                      {inc.code} • {inc.location}
+                    </span>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                         inc.status === 'BLOCKED'
@@ -467,25 +412,6 @@ export const IncidentsView: React.FC<IncidentsViewProps> = ({
                     >
                       {at.incidentsViewOnMap}
                     </button>
-                    {isAdmin && onDeleteIncident && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm(`Are you sure you want to permanently delete incident ${selectedIncident.code} - ${selectedIncident.title}?`)) {
-                            onDeleteIncident(selectedIncident.id);
-                          }
-                        }}
-                        className={`px-3 py-2.5 rounded-xl text-xs font-semibold border transition flex items-center gap-1.5 ${
-                          theme === 'dark'
-                            ? 'bg-rose-950/50 border-rose-800/70 text-rose-400 hover:bg-rose-900 hover:text-white'
-                            : 'bg-rose-50 border-rose-300 text-rose-700 hover:bg-rose-100 hover:text-rose-900'
-                        }`}
-                        title="Delete incident (Admin Only)"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete</span>
-                      </button>
-                    )}
                   </>
                 )}
               </div>

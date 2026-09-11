@@ -54,8 +54,7 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
 }) => {
   const { at } = useLanguage();
   const [isLayersMenuOpen, setIsLayersMenuOpen] = useState(false);
-  const [isFiltersMinimized, setIsFiltersMinimized] = useState(true);
-  const [isLegendCollapsed, setIsLegendCollapsed] = useState(true);
+  const [isFiltersMinimized, setIsFiltersMinimized] = useState(false);
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -504,184 +503,175 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       {/* Actual Leaflet Map Canvas */}
       <div ref={mapContainerRef} className="w-full h-full min-h-[360px] z-0" />
 
-      {/* Top-Right Control Deck: Active Filters & Map Layers (Collapsible) */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2 max-w-[calc(100%-24px)]">
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          {/* Active Filters Toggle */}
-          {showActiveFilters && activeFilters && (activeFilters.roadStatus || activeFilters.district) && (
-            <button
-              onClick={() => setIsFiltersMinimized((prev) => !prev)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold shadow-lg transition backdrop-blur-md cursor-pointer ${
-                !isFiltersMinimized
-                  ? theme === 'dark'
-                    ? 'bg-[#f1f3f7] border-white text-slate-950'
-                    : 'bg-slate-900 border-slate-900 text-white'
-                  : theme === 'dark'
-                  ? 'bg-black/90 border-rose-500/50 text-rose-300 hover:text-white hover:bg-[#141414]'
-                  : 'bg-white/95 border-rose-400 text-rose-700 hover:text-black hover:bg-slate-50'
-              }`}
-              title="Toggle Active Filters"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-              <span>Active Filters</span>
-              <span className="text-[9px] ml-0.5">{!isFiltersMinimized ? '▲' : '▼'}</span>
-            </button>
-          )}
-
-          {/* Map Layers Toggle */}
-          {showLayersControl && (
-            <button
-              onClick={() => setIsLayersMenuOpen((prev) => !prev)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold shadow-lg transition backdrop-blur-md cursor-pointer ${
-                isLayersMenuOpen
-                  ? theme === 'dark'
-                    ? 'bg-[#f1f3f7] border-white text-slate-950'
-                    : 'bg-slate-900 border-slate-900 text-white'
-                  : theme === 'dark'
-                  ? 'bg-black/90 border-[#262626] text-neutral-300 hover:text-white hover:bg-[#141414]'
-                  : 'bg-white/95 border-slate-300 text-slate-800 hover:text-black hover:bg-slate-50'
-              }`}
-              title="Toggle Map Layers"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <span>{at.dashLayers || 'Map Layers'}</span>
-              <span className="text-[9px] ml-0.5">{isLayersMenuOpen ? '▲' : '▼'}</span>
-            </button>
-          )}
-        </div>
-
-        {/* Collapsible Active Filters Card */}
-        {showActiveFilters && activeFilters && (activeFilters.roadStatus || activeFilters.district) && !isFiltersMinimized && (
-          <div className={`${cardBg} backdrop-blur-md border rounded-lg p-2.5 shadow-xl text-xs flex flex-col gap-2 min-w-[200px] max-w-[260px]`}>
-            <div className={`flex items-center justify-between text-[11px] font-bold ${textMuted} uppercase tracking-wider`}>
-              <span className="flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${theme === 'dark' ? 'bg-slate-300' : 'bg-slate-700'}`}></span>
-                Active Filters
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={onClearFilters}
-                  className={`${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'} font-medium text-[10px] hover:underline`}
-                >
-                  Clear
-                </button>
-                <button
-                  onClick={() => setIsFiltersMinimized(true)}
-                  title="Minimize filter chip"
-                  className={`${textMuted} hover:${chipText} text-xs px-1`}
-                >
-                  −
-                </button>
+      {/* Active Filters Bar Overlay */}
+      {showActiveFilters && activeFilters && (activeFilters.roadStatus || activeFilters.district) && (
+        <>
+          {!isFiltersMinimized ? (
+            <div className={`absolute top-3 left-3 z-10 ${cardBg} backdrop-blur-md border rounded-lg p-2.5 shadow-xl text-xs flex flex-col gap-2 min-w-[200px] max-w-[260px]`}>
+              <div className={`flex items-center justify-between text-[11px] font-bold ${textMuted} uppercase tracking-wider`}>
+                <span className="flex items-center gap-1.5">
+                  <span className={`w-1.5 h-1.5 rounded-full ${theme === 'dark' ? 'bg-slate-300' : 'bg-slate-700'}`}></span>
+                  Active Filters
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={onClearFilters}
+                    className={`${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'} font-medium text-[10px] hover:underline`}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    onClick={() => setIsFiltersMinimized(true)}
+                    title="Minimize filter chip"
+                    className={`${textMuted} hover:${chipText} text-xs px-1`}
+                  >
+                    −
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                {activeFilters.roadStatus && (
+                  <div className={`flex items-center justify-between ${chipBg} px-2 py-1 rounded border text-[11px]`}>
+                    <span className="flex items-center gap-1.5 truncate">
+                      <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+                      Status: <strong className={`${chipText} ml-0.5 truncate`}>{activeFilters.roadStatus}</strong>
+                    </span>
+                    <button
+                      onClick={onClearFilters}
+                      className={`${textMuted} hover:${chipText} ml-1 text-xs font-bold shrink-0`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+                {activeFilters.district && (
+                  <div className={`flex items-center justify-between ${chipBg} px-2 py-1 rounded border text-[11px]`}>
+                    <span className="flex items-center gap-1.5 truncate">
+                      <svg className={`w-3 h-3 ${textMuted} shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      </svg>
+                      <span className="truncate">District: <strong className={`${chipText} ml-0.5`}>{activeFilters.district}</strong></span>
+                    </span>
+                    <button
+                      onClick={onClearFilters}
+                      className={`${textMuted} hover:${chipText} ml-1 text-xs font-bold shrink-0`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="space-y-1.5">
-              {activeFilters.roadStatus && (
-                <div className={`flex items-center justify-between ${chipBg} px-2 py-1 rounded border text-[11px]`}>
-                  <span className="flex items-center gap-1.5 truncate">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
-                    Status: <strong className={`${chipText} ml-0.5 truncate`}>{activeFilters.roadStatus}</strong>
-                  </span>
-                  <button
-                    onClick={onClearFilters}
-                    className={`${textMuted} hover:${chipText} ml-1 text-xs font-bold shrink-0`}
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-              {activeFilters.district && (
-                <div className={`flex items-center justify-between ${chipBg} px-2 py-1 rounded border text-[11px]`}>
-                  <span className="flex items-center gap-1.5 truncate">
-                    <svg className={`w-3 h-3 ${textMuted} shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    </svg>
-                    <span className="truncate">District: <strong className={`${chipText} ml-0.5`}>{activeFilters.district}</strong></span>
-                  </span>
-                  <button
-                    onClick={onClearFilters}
-                    className={`${textMuted} hover:${chipText} ml-1 text-xs font-bold shrink-0`}
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+          ) : (
+            <button
+              onClick={() => setIsFiltersMinimized(false)}
+              className={`absolute top-3 left-3 z-10 ${cardBg} backdrop-blur-md border px-2.5 py-1.5 rounded-lg text-xs font-medium shadow-lg flex items-center gap-1.5 transition ${
+                theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-800 hover:text-black'
+              }`}
+              title="Show active filters"
+            >
+              <span className={`w-2 h-2 rounded-full ${theme === 'dark' ? 'bg-slate-300' : 'bg-slate-700'}`}></span>
+              <span>Filters Active</span>
+              <span className={`text-[10px] ${textMuted}`}>＋</span>
+            </button>
+          )}
+        </>
+      )}
 
-        {/* Collapsible Map Layers Card */}
-        {showLayersControl && isLayersMenuOpen && (
-          <div className={`mt-0.5 ${cardBg} backdrop-blur-md border rounded-lg p-2.5 shadow-2xl text-xs w-[170px] space-y-1.5`}>
-            <div className={`text-[10px] font-bold ${textMuted} uppercase tracking-wider pb-1 border-b ${
-              theme === 'dark' ? 'border-[#262626]' : 'border-slate-200'
-            } flex items-center justify-between`}>
-              <span>{at.dashLayers || 'Overlay Layers'}</span>
-              <button
-                onClick={() => setIsLayersMenuOpen(false)}
-                className={`${textMuted} hover:${chipText} text-xs`}
-              >
-                ✕
-              </button>
-            </div>
-            <label className={`flex items-center justify-between ${
-              theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'
-            } cursor-pointer select-none`}>
-              <span className="flex items-center gap-1.5">
-                <span className="text-xs">🌧️</span> {at.dashWeatherRadar || 'Weather Radar'}
-              </span>
-              <input
-                type="checkbox"
-                checked={layers.weatherRadar}
-                onChange={() => onToggleLayer && onToggleLayer('weatherRadar')}
-                className="rounded border-slate-400 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
-              />
-            </label>
-            <label className={`flex items-center justify-between ${
-              theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'
-            } cursor-pointer select-none`}>
-              <span className="flex items-center gap-1.5">
-                <span className="text-amber-500 text-xs">⚠️</span> {at.navHazardsSafetyTitle || 'Incidents'}
-              </span>
-              <input
-                type="checkbox"
-                checked={layers.incidents}
-                onChange={() => onToggleLayer && onToggleLayer('incidents')}
-                className="rounded border-slate-400 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
-              />
-            </label>
-            <label className={`flex items-center justify-between ${
-              theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'
-            } cursor-pointer select-none`}>
-              <span className="flex items-center gap-1.5">
-                <span className="text-emerald-500 text-xs">🚛</span> {at.navFleetTracking || 'Vehicles'}
-              </span>
-              <input
-                type="checkbox"
-                checked={layers.vehicles}
-                onChange={() => onToggleLayer && onToggleLayer('vehicles')}
-                className="rounded border-slate-400 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
-              />
-            </label>
-            <label className={`flex items-center justify-between ${
-              theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'
-            } cursor-pointer select-none`}>
-              <span className="flex items-center gap-1.5">
-                <span className="text-slate-500 text-xs">↗</span> {at.incidentsColStatus || 'Road Status'}
-              </span>
-              <input
-                type="checkbox"
-                checked={layers.roadStatus}
-                onChange={() => onToggleLayer && onToggleLayer('roadStatus')}
-                className="rounded border-slate-400 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
-              />
-            </label>
-          </div>
-        )}
-      </div>
+      {/* Map Layers Floating Panel */}
+      {showLayersControl && (
+        <div className="absolute top-3 right-3 z-10">
+          <button
+            onClick={() => setIsLayersMenuOpen((prev) => !prev)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold shadow-lg transition backdrop-blur-md ${
+              isLayersMenuOpen
+                ? theme === 'dark'
+                  ? 'bg-[#f1f3f7] border-white text-slate-950'
+                  : 'bg-slate-900 border-slate-900 text-white'
+                : theme === 'dark'
+                ? 'bg-black/90 border-[#262626] text-neutral-300 hover:text-white hover:bg-[#141414]'
+                : 'bg-white/95 border-slate-300 text-slate-800 hover:text-black hover:bg-slate-50'
+            }`}
+            title="Toggle Map Layers"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span>{at.dashLayers || 'Layers'}</span>
+            <span className="text-[9px] ml-0.5">{isLayersMenuOpen ? '▲' : '▼'}</span>
+          </button>
 
-      {/* Floating Zoom & Reset Controls (Right Side) */}
+          {isLayersMenuOpen && (
+            <div className={`mt-1.5 ${cardBg} backdrop-blur-md border rounded-lg p-2.5 shadow-2xl text-xs w-[165px] space-y-1.5`}>
+              <div className={`text-[10px] font-bold ${textMuted} uppercase tracking-wider pb-1 border-b ${
+                theme === 'dark' ? 'border-[#262626]' : 'border-slate-200'
+              } flex items-center justify-between`}>
+                <span>{at.dashLayers || 'Overlay Layers'}</span>
+                <button
+                  onClick={() => setIsLayersMenuOpen(false)}
+                  className={`${textMuted} hover:${chipText} text-xs`}
+                >
+                  ✕
+                </button>
+              </div>
+              <label className={`flex items-center justify-between ${
+                theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'
+              } cursor-pointer select-none`}>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-xs">🌧️</span> {at.dashWeatherRadar || 'Weather Radar'}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={layers.weatherRadar}
+                  onChange={() => onToggleLayer && onToggleLayer('weatherRadar')}
+                  className="rounded border-slate-400 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                />
+              </label>
+              <label className={`flex items-center justify-between ${
+                theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'
+              } cursor-pointer select-none`}>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-amber-500 text-xs">⚠️</span> {at.navHazardsSafetyTitle || 'Incidents'}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={layers.incidents}
+                  onChange={() => onToggleLayer && onToggleLayer('incidents')}
+                  className="rounded border-slate-400 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                />
+              </label>
+              <label className={`flex items-center justify-between ${
+                theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'
+              } cursor-pointer select-none`}>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-emerald-500 text-xs">🚛</span> {at.navFleetTracking || 'Vehicles'}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={layers.vehicles}
+                  onChange={() => onToggleLayer && onToggleLayer('vehicles')}
+                  className="rounded border-slate-400 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                />
+              </label>
+              <label className={`flex items-center justify-between ${
+                theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-black'
+              } cursor-pointer select-none`}>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-slate-500 text-xs">↗</span> {at.incidentsColStatus || 'Road Status'}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={layers.roadStatus}
+                  onChange={() => onToggleLayer && onToggleLayer('roadStatus')}
+                  className="rounded border-slate-400 text-slate-900 focus:ring-0 w-3.5 h-3.5 cursor-pointer"
+                />
+              </label>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Floating Zoom & Reset Controls */}
       <div className={`absolute right-3 bottom-14 z-10 flex flex-col ${cardBg} border rounded-lg shadow-xl overflow-hidden`}>
         <button
           onClick={handleZoomIn}
@@ -712,52 +702,23 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         </button>
       </div>
 
-      {/* Route Status Legend Overlay - Right side, Collapsible */}
+      {/* Route Status Legend Overlay */}
       {showLegend && (
-        <div className="absolute bottom-3 right-3 z-10">
-          {!isLegendCollapsed ? (
-            <div className={`${cardBg} backdrop-blur-md border rounded-lg p-2.5 shadow-xl text-xs min-w-[170px]`}>
-              <div className={`flex items-center justify-between text-[10px] font-bold ${textMuted} uppercase tracking-wider mb-1.5`}>
-                <span>ROUTE STATUS LEGEND</span>
-                <button
-                  onClick={() => setIsLegendCollapsed(true)}
-                  title="Collapse legend"
-                  className={`${textMuted} hover:${chipText} text-xs px-1`}
-                >
-                  −
-                </button>
-              </div>
-              <div className={`flex flex-col gap-1 text-[11px] ${theme === 'dark' ? 'text-slate-300' : 'text-slate-800'}`}>
-                <span className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span> Open / Clear
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span> Partial Disruption
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></span> Blocked / Closed
-                </span>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setIsLegendCollapsed(false)}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold shadow-lg backdrop-blur-md transition cursor-pointer ${
-                theme === 'dark'
-                  ? 'bg-black/90 border-[#262626] text-neutral-300 hover:text-white'
-                  : 'bg-white/95 border-slate-300 text-slate-800 hover:text-black'
-              }`}
-              title="Show Route Status Legend"
-            >
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-              </span>
-              <span>Legend</span>
-              <span className="text-[9px]">▲</span>
-            </button>
-          )}
+        <div className={`absolute bottom-3 left-3 z-10 ${cardBg} backdrop-blur-md border rounded-lg p-2.5 shadow-xl text-xs`}>
+          <div className={`text-[10px] font-bold ${textMuted} uppercase tracking-wider mb-1.5`}>
+            ROUTE STATUS LEGEND
+          </div>
+          <div className={`flex flex-col gap-1 text-[11px] ${theme === 'dark' ? 'text-slate-300' : 'text-slate-800'}`}>
+            <span className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Open / Clear
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Partial Disruption
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Blocked / Closed
+            </span>
+          </div>
         </div>
       )}
     </div>

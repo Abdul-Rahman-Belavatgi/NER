@@ -159,12 +159,12 @@ export const Header: React.FC<HeaderProps> = ({
           {isOnline ? (
             <>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span className="leading-none whitespace-nowrap font-medium">{at.headerLiveServerConnected || 'Server Connected'}</span>
+              <span className="leading-none whitespace-nowrap font-medium">{at.headerLiveServerConnected || t.liveServerConnected || 'Live Server Connected'}</span>
             </>
           ) : (
             <>
               <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-              <span className="leading-none whitespace-nowrap font-medium">{at.headerServerOffline || 'Server Offline'}</span>
+              <span className="leading-none whitespace-nowrap font-medium">{at.headerServerOffline || 'Server Offline / Local Cache'}</span>
             </>
           )}
         </button>
@@ -383,7 +383,6 @@ export const Header: React.FC<HeaderProps> = ({
         isOpen={isQueueModalOpen}
         onClose={() => setIsQueueModalOpen(false)}
         theme={theme}
-        currentUser={currentUser}
       />
 
       {/* Alternative Communication Modes Modal */}

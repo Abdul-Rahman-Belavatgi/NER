@@ -184,13 +184,6 @@ export default function App() {
     );
   };
 
-  const handleDeleteIncident = (incidentId: string) => {
-    setIncidents((prev) => prev.filter((inc) => inc.id !== incidentId));
-    if (selectedIncident?.id === incidentId) {
-      setSelectedIncident(null);
-    }
-  };
-
   const handleAcknowledgeAlert = (id: string) => {
     setAlerts((prev) =>
       prev.map((a) => (a.id === id ? { ...a, isRead: true } : a))
@@ -335,7 +328,6 @@ export default function App() {
               onSelectIncident={setSelectedIncident}
               onOpenReportModal={() => setIsReportModalOpen(true)}
               onNavigateTab={handleNavigateTab}
-              onDeleteIncident={handleDeleteIncident}
               theme={theme}
             />
           )}

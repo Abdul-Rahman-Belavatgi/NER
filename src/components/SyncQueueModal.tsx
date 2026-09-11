@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
@@ -15,20 +15,17 @@ import {
 } from 'lucide-react';
 import { useSync } from '../context/SyncContext';
 import { useLanguage } from '../context/LanguageContext';
-import { UserProfile } from '../types';
 
 interface SyncQueueModalProps {
   isOpen: boolean;
   onClose: () => void;
   theme?: 'dark' | 'light';
-  currentUser?: UserProfile;
 }
 
 export const SyncQueueModal: React.FC<SyncQueueModalProps> = ({
   isOpen,
   onClose,
   theme = 'dark',
-  currentUser,
 }) => {
   const {
     isOnline,
@@ -44,13 +41,8 @@ export const SyncQueueModal: React.FC<SyncQueueModalProps> = ({
     toggleSimulateOffline,
     isManualOfflineSimulated,
     clearSyncedRecords,
-    removeRecord,
     setIsAltCommModalOpen,
   } = useSync();
-
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'authority';
 
   const { at } = useLanguage();
 
@@ -244,43 +236,6 @@ export const SyncQueueModal: React.FC<SyncQueueModalProps> = ({
                       <RefreshCw className="w-3 h-3" />
                       Retry
                     </button>
-                  )}
-
-                  {/* Admin-only Delete Option for Pending / Offline records */}
-                  {isAdmin && (
-                    confirmDeleteId === item.id ? (
-                      <div className="flex items-center gap-1.5 bg-rose-950/80 border border-rose-600 px-2 py-1 rounded text-xs">
-                        <span className="text-[11px] text-rose-300 font-semibold">Delete?</span>
-                        <button
-                          onClick={() => {
-                            removeRecord(item.id);
-                            setConfirmDeleteId(null);
-                          }}
-                          className="px-1.5 py-0.5 rounded bg-rose-600 text-white font-bold text-[10px] hover:bg-rose-500"
-                        >
-                          Yes
-                        </button>
-                        <button
-                          onClick={() => setConfirmDeleteId(null)}
-                          className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300 text-[10px] hover:bg-neutral-700"
-                        >
-                          No
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setConfirmDeleteId(item.id)}
-                        className={`px-2.5 py-1 rounded text-xs font-semibold border flex items-center gap-1 transition ${
-                          theme === 'dark'
-                            ? 'border-rose-800/60 bg-rose-950/40 text-rose-400 hover:bg-rose-900/60 hover:text-white'
-                            : 'border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-900'
-                        }`}
-                        title="Delete pending offline record (Admin only)"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        <span>Delete</span>
-                      </button>
-                    )
                   )}
                 </div>
               </div>

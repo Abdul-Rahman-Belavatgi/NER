@@ -228,12 +228,6 @@ export class SyncService {
     }
   }
 
-  public static removeItem(id: string): void {
-    this.init();
-    this.queue = this.queue.filter((item) => item.id !== id);
-    this.notify();
-  }
-
   public static clearSyncedRecords(): void {
     this.init();
     // Only remove records that have been verified and confirmed by server
