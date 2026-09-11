@@ -13,7 +13,7 @@ import {
   CloudCheck,
   CloudOff
 } from 'lucide-react';
-import { Incident } from '../types';
+import { Incident, UserProfile, isPublicUser } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useSync } from '../context/SyncContext';
 import { AlternativeCommModal } from './AlternativeCommModal';
@@ -21,15 +21,18 @@ import { AlternativeCommModal } from './AlternativeCommModal';
 interface FieldReportingViewProps {
   onSubmitReport: (newIncident: Omit<Incident, 'id' | 'code' | 'timeAgo'>) => void;
   onNavigateTab: (tab: string) => void;
+  currentUser?: UserProfile;
   theme?: 'dark' | 'light';
 }
 
 export const FieldReportingView: React.FC<FieldReportingViewProps> = ({
   onSubmitReport,
   onNavigateTab,
+  currentUser,
   theme = 'dark',
 }) => {
   const { at } = useLanguage();
+  const isPublic = currentUser ? isPublicUser(currentUser.role) : false;
   const { enqueueRecord, isOnline } = useSync();
   const [state, setState] = useState('Meghalaya');
   const [district, setDistrict] = useState('East Jaintia Hills');
@@ -215,14 +218,28 @@ export const FieldReportingView: React.FC<FieldReportingViewProps> = ({
               <CheckCircle className="w-8 h-8" />
             </div>
             <h3 className={`text-base font-bold ${textPrimary}`}>
-              {at.fieldReportingTransmitted}
+              {at.fieldReportingTransmitted || 'Report Transmitted'}
             </h3>
             <p className={`text-xs ${textMuted} max-w-md mx-auto leading-relaxed`}>
-              Hazard telemetry has been cataloged into the Central Regional Database. Live map pins and detour engines have been synchronized.
+              {isPublic
+                ? 'Your hazard report has entered the Unverified / Pending queue for verification by BRO, SDMA, and District Highway Police before appearing on public feeds.'
+                : 'Hazard telemetry has been cataloged into the Central Regional Database. Live map pins and detour engines have been synchronized.'}
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Public report verification notice */}
+            {isPublic && (
+              <div className={`p-3 rounded-xl border flex items-start gap-2.5 ${
+                theme === 'dark' ? 'bg-sky-950/40 border-sky-800/60 text-sky-200' : 'bg-sky-50 border-sky-300 text-sky-900'
+              }`}>
+                <AlertTriangle className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                <div className="text-xs leading-relaxed">
+                  <span className="font-bold">Public Hazard Report:</span> Lightweight form to submit a road hazard with photo and location (enters an <strong>"Unverified / Pending"</strong> queue for review by authorities).
+                </div>
+              </div>
+            )}
+
             {/* Row 1: State & District */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

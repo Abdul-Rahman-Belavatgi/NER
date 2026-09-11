@@ -3,12 +3,12 @@ import { UserProfile, Incident, Vehicle, Shipment, OperationalAlert, HubWeather,
 export const OPERATOR_PROFILES: Record<string, UserProfile> = {
   public: {
     id: 'public',
-    name: 'Public Traveler / Driver',
-    email: 'traveler@nertravel.org',
+    name: 'General Public & Drivers',
+    email: 'public.traveler@nertravel.gov.in',
     phone: '+91 94350 00000',
     role: 'public',
-    roleTitle: 'General Public & Commercial Drivers (Public View)',
-    roleBadge: 'Public Traveler',
+    roleTitle: 'General Public & Drivers (Unauthenticated / Public View)',
+    roleBadge: 'Public View',
     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
     assignedSectors: ['All Regional Corridors']
   },

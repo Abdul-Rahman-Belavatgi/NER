@@ -19,7 +19,10 @@ import {
   CloudUpload,
   Wifi,
   WifiOff,
-  RadioTower
+  RadioTower,
+  Shield,
+  Check,
+  Settings
 } from 'lucide-react';
 import { UserProfile, UserRole, isPublicUser, isAuthorityUser, isLogisticsUser } from '../types';
 import { LANGUAGES, LanguageCode, TRANSLATIONS } from '../data/translations';
@@ -38,6 +41,8 @@ interface HeaderProps {
   unreadAlertsCount: number;
   onOpenAlerts: () => void;
   onToggleSidebar?: () => void;
+  onSwitchRole?: (role: UserRole) => void;
+  onOpenLogin?: () => void;
   currentLang?: LanguageCode;
   onSelectLang?: (lang: LanguageCode) => void;
 }
@@ -52,6 +57,8 @@ export const Header: React.FC<HeaderProps> = ({
   unreadAlertsCount,
   onOpenAlerts,
   onToggleSidebar,
+  onSwitchRole,
+  onOpenLogin,
   currentLang: propLang,
   onSelectLang,
 }) => {
@@ -59,6 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
   const currentLang = propLang || contextLang;
   const [timeStr, setTimeStr] = useState<string>('');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
 
   const {
@@ -331,6 +339,20 @@ export const Header: React.FC<HeaderProps> = ({
           <span className="tracking-tight whitespace-nowrap">{at.headerReportIncident || t.reportRoadIncident}</span>
         </button>
 
+        {/* Operator Sign In (When in Public View) */}
+        {isPublicUser(currentUser.role) && onOpenLogin && (
+          <button
+            type="button"
+            onClick={onOpenLogin}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm cursor-pointer"
+            title="Log in with BRO / Police / Transporter credentials"
+          >
+            <Shield className="w-3.5 h-3.5 shrink-0" />
+            <span className="hidden xs:inline whitespace-nowrap">Operator Sign In</span>
+            <span className="xs:hidden">Sign In</span>
+          </button>
+        )}
+
         {/* Alerts Bell with Badge */}
         <button
           onClick={onOpenAlerts}
@@ -349,32 +371,192 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </button>
 
-        {/* User Profile Badge: Clean avatar & designation */}
-        <div
-          onClick={() => onSelectTab('settings')}
-          className={`flex items-center gap-2.5 pl-2.5 border-l ${
-            theme === 'dark' ? 'border-[#262626]' : 'border-slate-200'
-          } cursor-pointer group`}
-          title="Operator Profile & Settings"
-        >
-          <div className="relative shrink-0">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="w-8 h-8 rounded-full object-cover ring-1 ring-neutral-700 group-hover:ring-neutral-400 transition"
-            />
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-black" />
-          </div>
-          <div className="hidden sm:block text-left">
-            <div className={`text-xs font-semibold ${
-              theme === 'dark' ? 'text-white group-hover:text-emerald-400' : 'text-slate-900 group-hover:text-emerald-600'
-            } transition leading-tight tracking-tight`}>
-              {currentUser.name}
+        {/* User Profile Badge: Clean avatar & designation with quick role switcher */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsRoleMenuOpen((prev) => !prev)}
+            className={`flex items-center gap-2.5 pl-2.5 border-l ${
+              theme === 'dark' ? 'border-[#262626]' : 'border-slate-200'
+            } cursor-pointer group text-left`}
+            title="Click to switch role or view profile"
+          >
+            <div className="relative shrink-0">
+              <img
+                src={currentUser.avatar}
+                alt={currentUser.name}
+                className="w-8 h-8 rounded-full object-cover ring-1 ring-neutral-700 group-hover:ring-neutral-400 transition"
+              />
+              <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ring-2 ring-black ${
+                isPublicUser(currentUser.role) ? 'bg-sky-400' : isAuthorityUser(currentUser.role) ? 'bg-purple-500' : 'bg-emerald-500'
+              }`} />
             </div>
-            <div className={`text-[10px] ${theme === 'dark' ? 'text-neutral-400' : 'text-slate-500'} leading-tight`}>
-              {currentUser.roleBadge || (isPublicUser(currentUser.role) ? at.operatorRolePublic : isAuthorityUser(currentUser.role) ? at.operatorRoleAuthority : at.operatorRoleLogistics)}
+            <div className="hidden sm:block text-left">
+              <div className={`text-xs font-semibold ${
+                theme === 'dark' ? 'text-white group-hover:text-sky-400' : 'text-slate-900 group-hover:text-sky-600'
+              } transition leading-tight tracking-tight flex items-center gap-1`}>
+                <span>{currentUser.name}</span>
+                <ChevronDown className="w-3 h-3 text-neutral-400 group-hover:text-white transition" />
+              </div>
+              <div className={`text-[10px] ${theme === 'dark' ? 'text-neutral-400' : 'text-slate-500'} leading-tight`}>
+                {currentUser.roleBadge || (isPublicUser(currentUser.role) ? 'Public View' : isAuthorityUser(currentUser.role) ? 'Govt Authority' : 'Logistics Operator')}
+              </div>
             </div>
-          </div>
+          </button>
+
+          {/* Quick Role Switcher Dropdown */}
+          {isRoleMenuOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setIsRoleMenuOpen(false)}
+              />
+              <div className={`absolute right-0 top-full mt-2 w-80 rounded-2xl border shadow-2xl z-50 p-2.5 ${
+                theme === 'dark' ? 'bg-[#0f0f0f] border-[#262626] text-white' : 'bg-white border-slate-200 text-slate-900'
+              }`}>
+                <div className="px-2 py-1.5 border-b border-inherit mb-2">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                    Switch Access Level / Role
+                  </div>
+                  <div className="text-xs font-semibold mt-0.5 flex items-center justify-between">
+                    <span className="truncate">{currentUser.name}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${
+                      isPublicUser(currentUser.role)
+                        ? 'bg-sky-950/80 text-sky-300 border border-sky-800/60'
+                        : isAuthorityUser(currentUser.role)
+                        ? 'bg-purple-950/80 text-purple-300 border border-purple-800/60'
+                        : 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/60'
+                    }`}>
+                      {currentUser.roleBadge || (isPublicUser(currentUser.role) ? 'Public View' : isAuthorityUser(currentUser.role) ? 'Govt Authority' : 'Logistics')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  {/* Role 1: General Public & Drivers */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSwitchRole?.('public');
+                      setIsRoleMenuOpen(false);
+                    }}
+                    className={`w-full p-2 rounded-xl text-left border transition flex items-start justify-between gap-2 ${
+                      isPublicUser(currentUser.role)
+                        ? theme === 'dark'
+                          ? 'bg-sky-950/60 border-sky-600/80 text-white'
+                          : 'bg-sky-50 border-sky-300 text-sky-950'
+                        : theme === 'dark'
+                        ? 'bg-transparent border-transparent hover:bg-[#1a1a1a] text-neutral-300'
+                        : 'bg-transparent border-transparent hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-sky-400" />
+                        <span>Role 1: General Public &amp; Drivers</span>
+                      </div>
+                      <div className={`text-[10px] mt-0.5 ${theme === 'dark' ? 'text-neutral-400' : 'text-slate-500'}`}>
+                        Unauthenticated / Public View (Live Map, Hazards, Weather)
+                      </div>
+                    </div>
+                    {isPublicUser(currentUser.role) && <Check className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />}
+                  </button>
+
+                  {/* Role 2: Govt & Disaster Authority */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSwitchRole?.('authority');
+                      setIsRoleMenuOpen(false);
+                    }}
+                    className={`w-full p-2 rounded-xl text-left border transition flex items-start justify-between gap-2 ${
+                      isAuthorityUser(currentUser.role)
+                        ? theme === 'dark'
+                          ? 'bg-purple-950/60 border-purple-600/80 text-white'
+                          : 'bg-purple-50 border-purple-300 text-purple-950'
+                        : theme === 'dark'
+                        ? 'bg-transparent border-transparent hover:bg-[#1a1a1a] text-neutral-300'
+                        : 'bg-transparent border-transparent hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold flex items-center gap-1.5">
+                        <Shield className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Role 2: Govt &amp; Disaster Authority</span>
+                      </div>
+                      <div className={`text-[10px] mt-0.5 ${theme === 'dark' ? 'text-neutral-400' : 'text-slate-500'}`}>
+                        BRO / SDMA / Police (Incident Command &amp; Verification Queue)
+                      </div>
+                    </div>
+                    {isAuthorityUser(currentUser.role) && <Check className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />}
+                  </button>
+
+                  {/* Role 3: Logistics & Fleet Operator */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSwitchRole?.('logistics');
+                      setIsRoleMenuOpen(false);
+                    }}
+                    className={`w-full p-2 rounded-xl text-left border transition flex items-start justify-between gap-2 ${
+                      isLogisticsUser(currentUser.role)
+                        ? theme === 'dark'
+                          ? 'bg-emerald-950/60 border-emerald-600/80 text-white'
+                          : 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                        : theme === 'dark'
+                        ? 'bg-transparent border-transparent hover:bg-[#1a1a1a] text-neutral-300'
+                        : 'bg-transparent border-transparent hover:bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold flex items-center gap-1.5">
+                        <Truck className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Role 3: Logistics &amp; Fleet Operator</span>
+                      </div>
+                      <div className={`text-[10px] mt-0.5 ${theme === 'dark' ? 'text-neutral-400' : 'text-slate-500'}`}>
+                        Transporter / Dispatcher (Fleet Tracking, Detours, Cargo)
+                      </div>
+                    </div>
+                    {isLogisticsUser(currentUser.role) && <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />}
+                  </button>
+                </div>
+
+                <div className="pt-2 mt-2 border-t border-inherit space-y-1.5">
+                  {onOpenLogin && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onOpenLogin();
+                        setIsRoleMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                        theme === 'dark'
+                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-sm'
+                          : 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-600 shadow-sm'
+                      }`}
+                    >
+                      <Shield className="w-3.5 h-3.5" />
+                      <span>Return to Log In Screen / Portal</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelectTab('settings');
+                      setIsRoleMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition ${
+                      theme === 'dark' ? 'bg-[#1a1a1a] text-neutral-300 hover:text-white' : 'bg-slate-100 text-slate-700 hover:text-black'
+                    }`}
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    <span>Regional Settings &amp; Full Profile</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

@@ -12,6 +12,7 @@ import {
   Bell,
   Settings,
   LogOut,
+  Shield,
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
@@ -79,27 +80,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  // Navigation items grouped strictly based on the Image 4 RBAC Visibility Matrix:
-  // Role 1 (Public): Map, Incidents Feed, Weather, Report Hazard, Alerts (Read-only)
-  // Role 2 (Govt Authority): Dashboard, Map, Weather, Verification Queue, Incidents, Field Logging, Alerts (Broadcast)
-  // Role 3 (Logistics Operator): Dashboard, Map, Weather, Route Planning, Cargo, Fleet Tracking, Incidents, Report, Alerts (Action)
+  // Role 1 (Public): Live Highway Map, Active Incidents Feed, Weather & Rain Alerts, Report Incident, Emergency Bulletins
+  // Logistics & Admin Sections (Route Planning, Cargo Tracking, Fleet Tracking, Verification tools) are strictly Hidden
   const getNavGroups = (role: UserRole) => {
     if (isPublicUser(role)) {
       return [
         {
-          title: at.navPublicSafetyTitle,
+          title: at.navPublicSafetyTitle || 'TRAVEL SAFETY & HAZARDS',
           items: [
             { id: 'map', label: at.navLiveHighwayMap, icon: Map },
-            { id: 'vehicles', label: at.navFleetTracking || 'Fleet Tracking', icon: Truck },
             { id: 'incidents', label: at.navActiveIncidentsFeed, icon: AlertTriangle },
             { id: 'weather', label: at.navWeatherRainAlerts, icon: CloudRain },
           ],
         },
         {
-          title: at.navPublicActionsTitle,
+          title: at.navPublicActionsTitle || 'TRAVELER ACTIONS',
           items: [
-            { id: 'fieldReporting', label: at.navReportRoadHazard, icon: FileText },
+            { id: 'fieldReporting', label: at.navReportRoadHazard || 'Report Incident (Public)', icon: FileText },
             { id: 'alerts', label: at.navEmergencyAlerts, icon: Bell, badge: unreadAlertsCount },
+            { id: 'loginPortal', label: 'Operator Portal / Sign In', icon: Shield },
           ],
         },
       ];
@@ -277,14 +276,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
               <button
                 onClick={onLogout}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition group ${
-                  theme === 'dark'
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold transition ${
+                  isPublicUser(currentUser.role)
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                    : theme === 'dark'
                     ? 'text-neutral-400 hover:text-rose-400 hover:bg-[#141414]'
                     : 'text-slate-600 hover:text-rose-600 hover:bg-slate-100'
                 }`}
               >
-                <LogOut strokeWidth={2} className="w-4 h-4" />
-                <span>{at.navLogOut}</span>
+                {isPublicUser(currentUser.role) ? (
+                  <Shield strokeWidth={2} className="w-4 h-4 text-white shrink-0" />
+                ) : (
+                  <LogOut strokeWidth={2} className="w-4 h-4 shrink-0" />
+                )}
+                <span>{isPublicUser(currentUser.role) ? 'Operator Sign In' : at.navLogOut}</span>
               </button>
             </div>
           </aside>
@@ -427,20 +432,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {!isCollapsed && <span>{at.navSettings}</span>}
           </button>
 
-          {/* Log Out */}
+          {/* Log Out / Operator Sign In */}
           <button
             onClick={onLogout}
-            title={isCollapsed ? at.navLogOut : undefined}
+            title={isCollapsed ? (isPublicUser(currentUser.role) ? 'Operator Sign In' : at.navLogOut) : undefined}
             className={`w-full flex items-center ${
               isCollapsed ? 'justify-center p-2' : 'gap-2.5 px-3 py-2'
-            } rounded-lg text-xs font-semibold transition group ${
-              theme === 'dark'
+            } rounded-lg text-xs font-bold transition ${
+              isPublicUser(currentUser.role)
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                : theme === 'dark'
                 ? 'text-neutral-400 hover:text-rose-400 hover:bg-[#141414]'
                 : 'text-slate-600 hover:text-rose-600 hover:bg-slate-100'
             }`}
           >
-            <LogOut strokeWidth={2} className="w-4 h-4 shrink-0" />
-            {!isCollapsed && <span>{at.navLogOut}</span>}
+            {isPublicUser(currentUser.role) ? (
+              <Shield strokeWidth={2} className="w-4 h-4 shrink-0 text-white" />
+            ) : (
+              <LogOut strokeWidth={2} className="w-4 h-4 shrink-0" />
+            )}
+            {!isCollapsed && (
+              <span>{isPublicUser(currentUser.role) ? 'Operator Sign In' : at.navLogOut}</span>
+            )}
           </button>
 
           {/* Expand Button when collapsed */}

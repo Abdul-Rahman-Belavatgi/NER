@@ -31,7 +31,7 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
   const [layers, setLayers] = useState({
     weatherRadar: true,
     incidents: true,
-    vehicles: true, // Accessible for all users including public travelers/drivers
+    vehicles: !isPublic, // Hidden for public view as per RBAC specification
     roadStatus: true,
   });
 
@@ -52,7 +52,7 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
 
   const handleClearFilters = () => {
     setActiveFilters({});
-    setLayers((prev) => ({ ...prev, vehicles: true }));
+    setLayers((prev) => ({ ...prev, vehicles: !isPublic }));
   };
 
   const cardBorder = theme === 'dark' ? 'border-[#262626]' : 'border-slate-200';
@@ -76,16 +76,19 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
     return true;
   });
 
-  // Fleet vehicles filtered according to the Fleet Tracking filter toolbar (available to public drivers too)
-  const mapVehicles = vehicles.filter((veh) => {
-    if (!layers.vehicles) return false;
-    if (activeFilters.vehicleStatus && activeFilters.vehicleStatus !== 'All') {
-      if (veh.status.toLowerCase() !== activeFilters.vehicleStatus.toLowerCase()) {
-        return false;
-      }
-    }
-    return true;
-  });
+  // Fleet vehicles: strictly hidden for public travelers/drivers as per RBAC specification
+  // ("Cannot view commercial fleet locations")
+  const mapVehicles = isPublic
+    ? []
+    : vehicles.filter((veh) => {
+        if (!layers.vehicles) return false;
+        if (activeFilters.vehicleStatus && activeFilters.vehicleStatus !== 'All') {
+          if (veh.status.toLowerCase() !== activeFilters.vehicleStatus.toLowerCase()) {
+            return false;
+          }
+        }
+        return true;
+      });
 
   return (
     <div className="space-y-3 pb-6 flex flex-col h-[calc(100vh-6rem)]">
@@ -127,45 +130,52 @@ export const IntelligenceMapView: React.FC<IntelligenceMapViewProps> = ({
             <option value="Cachar">{at.districtCachar || 'Cachar'}</option>
           </select>
 
-          {/* Fleet Tracking Filter - explicitly accessible for ALL users including public traveler/driver */}
-          <div className="flex items-center gap-1.5 pl-2 border-l border-neutral-700/60">
-            <button
-              type="button"
-              onClick={() => handleToggleLayer('vehicles')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-semibold transition cursor-pointer ${
-                layers.vehicles
-                  ? theme === 'dark'
-                    ? 'bg-emerald-950/60 border-emerald-700 text-emerald-300 shadow-sm'
-                    : 'bg-emerald-100 border-emerald-300 text-emerald-800 shadow-sm'
-                  : theme === 'dark'
-                    ? 'bg-[#0a0a0a] border-[#262626] text-neutral-400 hover:text-white'
-                    : 'bg-slate-100 border-slate-300 text-slate-500 hover:text-slate-900'
-              }`}
-              title={layers.vehicles ? 'Click to hide fleet tracking on map' : 'Click to show fleet tracking on map'}
-            >
-              <Truck className="w-3.5 h-3.5" />
-              <span>{at.navFleetTracking || 'Fleet Tracking'}</span>
-              <span className={`w-1.5 h-1.5 rounded-full ${layers.vehicles ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'}`} />
-            </button>
-
-            {layers.vehicles && (
-              <select
-                value={activeFilters.vehicleStatus || 'All'}
-                onChange={(e) => setActiveFilters((prev) => ({ ...prev, vehicleStatus: e.target.value === 'All' ? undefined : e.target.value }))}
-                className={`px-2.5 py-1 rounded-md border text-xs font-medium cursor-pointer transition ${
-                  theme === 'dark'
-                    ? 'bg-[#0a0a0a] border-[#262626] text-white hover:border-neutral-500'
-                    : 'bg-white border-slate-300 text-slate-900 hover:border-slate-400'
+          {/* Fleet Tracking Filter - Hidden for public view as per RBAC specification */}
+          {!isPublic ? (
+            <div className="flex items-center gap-1.5 pl-2 border-l border-neutral-700/60">
+              <button
+                type="button"
+                onClick={() => handleToggleLayer('vehicles')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-semibold transition cursor-pointer ${
+                  layers.vehicles
+                    ? theme === 'dark'
+                      ? 'bg-emerald-950/60 border-emerald-700 text-emerald-300 shadow-sm'
+                      : 'bg-emerald-100 border-emerald-300 text-emerald-800 shadow-sm'
+                    : theme === 'dark'
+                      ? 'bg-[#0a0a0a] border-[#262626] text-neutral-400 hover:text-white'
+                      : 'bg-slate-100 border-slate-300 text-slate-500 hover:text-slate-900'
                 }`}
-                title="Filter Fleet Vehicles by Status"
+                title={layers.vehicles ? 'Click to hide fleet tracking on map' : 'Click to show fleet tracking on map'}
               >
-                <option value="All">{at.filterAllVehicles || 'Fleet: All'}</option>
-                <option value="MOVING">{at.statusMoving || 'Fleet: Moving'}</option>
-                <option value="DELAYED">{at.statusDelayedTag || 'Fleet: Delayed'}</option>
-                <option value="IDLE">{at.statusIdle || 'Fleet: Idle / Parked'}</option>
-              </select>
-            )}
-          </div>
+                <Truck className="w-3.5 h-3.5" />
+                <span>{at.navFleetTracking || 'Fleet Tracking'}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${layers.vehicles ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-500'}`} />
+              </button>
+
+              {layers.vehicles && (
+                <select
+                  value={activeFilters.vehicleStatus || 'All'}
+                  onChange={(e) => setActiveFilters((prev) => ({ ...prev, vehicleStatus: e.target.value === 'All' ? undefined : e.target.value }))}
+                  className={`px-2.5 py-1 rounded-md border text-xs font-medium cursor-pointer transition ${
+                    theme === 'dark'
+                      ? 'bg-[#0a0a0a] border-[#262626] text-white hover:border-neutral-500'
+                      : 'bg-white border-slate-300 text-slate-900 hover:border-slate-400'
+                  }`}
+                  title="Filter Fleet Vehicles by Status"
+                >
+                  <option value="All">{at.filterAllVehicles || 'Fleet: All'}</option>
+                  <option value="MOVING">{at.statusMoving || 'Fleet: Moving'}</option>
+                  <option value="DELAYED">{at.statusDelayedTag || 'Fleet: Delayed'}</option>
+                  <option value="IDLE">{at.statusIdle || 'Fleet: Idle / Parked'}</option>
+                </select>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 pl-2 border-l border-neutral-700/60 text-[11px] text-neutral-400">
+              <span className="w-2 h-2 rounded-full bg-sky-400" />
+              <span>Public Travel View (Corridor Road Statuses &amp; Hazard Pins)</span>
+            </div>
+          )}
 
           {(activeFilters.roadStatus || activeFilters.district || activeFilters.vehicleStatus || !layers.vehicles) && (
             <button

@@ -10,7 +10,7 @@ import {
   Truck,
   AlertTriangle
 } from 'lucide-react';
-import { UserProfile, UserRole } from '../types';
+import { UserProfile, UserRole, isPublicUser, isAuthorityUser, isLogisticsUser } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 
 interface SettingsViewProps {
@@ -88,19 +88,21 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   ? 'bg-white/10 text-slate-200 border border-white/20'
                   : 'bg-slate-100 text-slate-800 border border-slate-300'
               }`}>
-                {currentUser.role === 'field'
-                  ? at.operatorRolePublic || 'Public Traveler'
-                  : currentUser.role === 'dispatcher'
-                  ? at.operatorRoleLogistics || 'Fleet Dispatcher'
-                  : at.operatorRoleAuthority || 'Disaster Nodal'}
+                {isPublicUser(currentUser.role)
+                  ? 'Role 1: Public View'
+                  : isLogisticsUser(currentUser.role)
+                  ? 'Role 3: Logistics Operator'
+                  : 'Role 2: Govt Authority'}
               </span>
             </div>
             <div className={`text-xs ${textMuted} mt-1`}>
-              {currentUser.role === 'field'
-                ? at.rolePublicTitle || 'Public Traveler / Driver'
-                : currentUser.role === 'dispatcher'
-                ? at.roleLogisticsTitle || 'Logistics & Fleet Operator'
-                : at.roleAuthorityTitle || 'Highway Authority & Disaster Nodal'}
+              {currentUser.roleTitle || (
+                isPublicUser(currentUser.role)
+                  ? 'General Public & Drivers (Unauthenticated / Public View)'
+                  : isLogisticsUser(currentUser.role)
+                  ? 'Logistics & Fleet Operator (Transporter / Dispatcher)'
+                  : 'Government & Disaster Authority (BRO / SDMA / Police)'
+              )}
             </div>
           </div>
         </div>
@@ -127,73 +129,91 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Operational Role Switcher */}
       <div className={`${surfaceBg} border ${cardBorder} rounded-2xl p-5 shadow-xl space-y-3`}>
         <div className={`text-xs font-bold ${textPrimary} uppercase tracking-wider`}>
-          {at.settingsSwitchProfile}
+          {at.settingsSwitchProfile || 'SWITCH USER ROLE / ACCESS LEVEL'}
         </div>
         <p className={`text-xs ${textMuted}`}>
-          {at.settingsSwitchDesc}
+          {at.settingsSwitchDesc || 'Switch role to inspect permissions, visibility filters, and operational tool access across the corridor.'}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
           <button
-            onClick={() => onSwitchRole('admin')}
-            className={`p-3 rounded-xl border text-left transition ${
-              currentUser.role === 'admin'
+            onClick={() => onSwitchRole('public')}
+            className={`p-3.5 rounded-xl border text-left transition ${
+              isPublicUser(currentUser.role)
                 ? theme === 'dark'
-                  ? 'bg-white/10 border-white/60 text-white'
-                  : 'bg-slate-900 text-white border-slate-900 shadow-md'
+                  ? 'bg-sky-600/20 border-sky-500 text-white shadow-md ring-1 ring-sky-500/50'
+                  : 'bg-sky-50 border-sky-500 text-sky-950 shadow-md ring-1 ring-sky-500/40'
                 : theme === 'dark'
                 ? 'bg-[#0a0a0a] border-[#262626] text-neutral-400 hover:text-white'
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-black'
             }`}
           >
-            <div className="flex items-center gap-2 text-xs font-bold">
-              <Shield className="w-4 h-4" />
-              <span>Arjun Das</span>
+            <div className={`flex items-center justify-between text-xs font-bold ${isPublicUser(currentUser.role) ? 'text-sky-400' : ''}`}>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                <span>General Public &amp; Drivers</span>
+              </div>
+              {isPublicUser(currentUser.role) && <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono">ACTIVE</span>}
             </div>
-            <div className={`text-[11px] mt-1 ${currentUser.role === 'admin' && theme === 'light' ? 'text-slate-300' : textMuted}`}>
-              {at.roleAuthorityTitle || 'Highway Authority & Disaster Nodal'}
+            <div className={`text-[11px] font-semibold mt-1.5 ${isPublicUser(currentUser.role) ? 'text-sky-300' : textSecondary}`}>
+              Role 1: Unauthenticated / Public View
+            </div>
+            <div className={`text-[10px] mt-1 line-clamp-2 ${textMuted}`}>
+              View-only live highway map, active verified incidents, weather alerts &amp; public hazard reporting.
             </div>
           </button>
 
           <button
-            onClick={() => onSwitchRole('dispatcher')}
-            className={`p-3 rounded-xl border text-left transition ${
-              currentUser.role === 'dispatcher'
+            onClick={() => onSwitchRole('authority')}
+            className={`p-3.5 rounded-xl border text-left transition ${
+              isAuthorityUser(currentUser.role)
                 ? theme === 'dark'
-                  ? 'bg-emerald-600/20 border-emerald-500 text-white'
-                  : 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-md'
+                  ? 'bg-purple-600/20 border-purple-500 text-white shadow-md ring-1 ring-purple-500/50'
+                  : 'bg-purple-50 border-purple-500 text-purple-950 shadow-md ring-1 ring-purple-500/40'
                 : theme === 'dark'
                 ? 'bg-[#0a0a0a] border-[#262626] text-neutral-400 hover:text-white'
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-black'
             }`}
           >
-            <div className={`flex items-center gap-2 text-xs font-bold ${currentUser.role === 'dispatcher' ? 'text-emerald-500' : ''}`}>
-              <Truck className="w-4 h-4" />
-              <span>B. Borah</span>
+            <div className={`flex items-center justify-between text-xs font-bold ${isAuthorityUser(currentUser.role) ? 'text-purple-400' : ''}`}>
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                <span>Capt. Arjun Das</span>
+              </div>
+              {isAuthorityUser(currentUser.role) && <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">ACTIVE</span>}
             </div>
-            <div className={`text-[11px] mt-1 ${textMuted}`}>
-              {at.roleLogisticsTitle || 'Logistics & Fleet Operator'}
+            <div className={`text-[11px] font-semibold mt-1.5 ${isAuthorityUser(currentUser.role) ? 'text-purple-300' : textSecondary}`}>
+              Role 2: Govt &amp; Disaster Authority
+            </div>
+            <div className={`text-[10px] mt-1 line-clamp-2 ${textMuted}`}>
+              BRO / SDMA nodal command, incident verification queue, and official roadblock broadcasting.
             </div>
           </button>
 
           <button
-            onClick={() => onSwitchRole('field')}
-            className={`p-3 rounded-xl border text-left transition ${
-              currentUser.role === 'field'
+            onClick={() => onSwitchRole('logistics')}
+            className={`p-3.5 rounded-xl border text-left transition ${
+              isLogisticsUser(currentUser.role)
                 ? theme === 'dark'
-                  ? 'bg-amber-600/20 border-amber-500 text-white'
-                  : 'bg-amber-50 border-amber-500 text-amber-950 shadow-md'
+                  ? 'bg-emerald-600/20 border-emerald-500 text-white shadow-md ring-1 ring-emerald-500/50'
+                  : 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-md ring-1 ring-emerald-500/40'
                 : theme === 'dark'
                 ? 'bg-[#0a0a0a] border-[#262626] text-neutral-400 hover:text-white'
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:text-black'
             }`}
           >
-            <div className={`flex items-center gap-2 text-xs font-bold ${currentUser.role === 'field' ? 'text-amber-500' : ''}`}>
-              <AlertTriangle className="w-4 h-4" />
-              <span>Priya Sharma</span>
+            <div className={`flex items-center justify-between text-xs font-bold ${isLogisticsUser(currentUser.role) ? 'text-emerald-400' : ''}`}>
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4" />
+                <span>B. Borah</span>
+              </div>
+              {isLogisticsUser(currentUser.role) && <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">ACTIVE</span>}
             </div>
-            <div className={`text-[11px] mt-1 ${textMuted}`}>
-              {at.rolePublicTitle || 'Public Traveler / Driver'}
+            <div className={`text-[11px] font-semibold mt-1.5 ${isLogisticsUser(currentUser.role) ? 'text-emerald-300' : textSecondary}`}>
+              Role 3: Logistics &amp; Fleet Operator
+            </div>
+            <div className={`text-[10px] mt-1 line-clamp-2 ${textMuted}`}>
+              Commercial fleet GPS tracking, dynamic detour routing &amp; cargo consignment tracking.
             </div>
           </button>
         </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { X } from 'lucide-react';
 import { UserRole, UserProfile, Incident, Vehicle, Shipment, OperationalAlert, HubWeather, isPublicUser, isAuthorityUser, isLogisticsUser } from './types';
 import {
   OPERATOR_PROFILES,
@@ -28,9 +29,9 @@ import { ReportIncidentModal } from './components/ReportIncidentModal';
 import { IncidentVerificationQueueView } from './components/IncidentVerificationQueueView';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState<UserProfile>(OPERATOR_PROFILES.admin);
-  const [currentTab, setCurrentTab] = useState<string>('dashboard');
+  const [showLoginPage, setShowLoginPage] = useState(true);
+  const [currentUser, setCurrentUser] = useState<UserProfile>(OPERATOR_PROFILES.public);
+  const [currentTab, setCurrentTab] = useState<string>('map');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const { currentLang, setLang } = useLanguage();
 
@@ -67,9 +68,9 @@ export default function App() {
   };
 
   const handleLogin = (role: UserRole) => {
-    const profile = OPERATOR_PROFILES[role] || OPERATOR_PROFILES.admin;
+    const profile = OPERATOR_PROFILES[role] || (role === 'logistics' || role === 'dispatcher' ? OPERATOR_PROFILES.logistics : OPERATOR_PROFILES.authority);
     setCurrentUser(profile);
-    setIsAuthenticated(true);
+    setShowLoginPage(false);
     if (isPublicUser(role)) {
       setCurrentTab('map');
     } else {
@@ -78,24 +79,23 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    setShowLoginPage(true);
+    setCurrentUser(OPERATOR_PROFILES.public);
+    setCurrentTab('map');
   };
 
   const handleSwitchRole = (role: UserRole) => {
-    const profile = OPERATOR_PROFILES[role] || OPERATOR_PROFILES.admin;
+    const profile = OPERATOR_PROFILES[role] || (role === 'logistics' || role === 'dispatcher' ? OPERATOR_PROFILES.logistics : isAuthorityUser(role) ? OPERATOR_PROFILES.authority : OPERATOR_PROFILES.public);
     setCurrentUser(profile);
     if (isPublicUser(role)) {
-      // Public users have access to map, vehicles (fleet tracking), incidents, weather, fieldReporting, alerts
-      if (['dashboard', 'routes', 'logistics', 'verificationQueue'].includes(currentTab)) {
+      if (['dashboard', 'routes', 'logistics', 'vehicles', 'verificationQueue'].includes(currentTab)) {
         setCurrentTab('map');
       }
     } else if (isAuthorityUser(role)) {
-      // Authorities do not have commercial routes, logistics, or vehicles
       if (['routes', 'logistics', 'vehicles'].includes(currentTab)) {
         setCurrentTab('dashboard');
       }
     } else if (isLogisticsUser(role)) {
-      // Logistics operators do not have verification queue
       if (['verificationQueue'].includes(currentTab)) {
         setCurrentTab('dashboard');
       }
@@ -199,6 +199,17 @@ export default function App() {
   };
 
   const handleNavigateTab = (tab: string, context?: any) => {
+    if (tab === 'loginPortal') {
+      setShowLoginPage(true);
+      return;
+    }
+    if (isPublicUser(currentUser.role)) {
+      // Role 1 (Public View) cannot access Logistics, Fleet, Route Planning, Admin Dashboard, or Verification tools
+      if (['dashboard', 'routes', 'logistics', 'vehicles', 'verificationQueue'].includes(tab)) {
+        setCurrentTab('map');
+        return;
+      }
+    }
     setCurrentTab(tab);
     if (context?.incidentId) {
       const found = incidents.find((i) => i.id === context.incidentId);
@@ -213,16 +224,19 @@ export default function App() {
   const unreadAlertsCount = alerts.filter((a) => !a.isRead).length;
   const pendingVerificationCount = incidents.filter((i) => i.verificationStatus === 'PENDING').length;
 
-  if (!isAuthenticated) {
+  // Render Full Login View if user is on the login portal screen
+  if (showLoginPage) {
     return (
       <LoginView
         onLogin={handleLogin}
         onViewMap={() => {
-          handleLogin('field');
+          setCurrentUser(OPERATOR_PROFILES.public);
+          setShowLoginPage(false);
           setCurrentTab('map');
         }}
         onReportIssue={() => {
-          handleLogin('field');
+          setCurrentUser(OPERATOR_PROFILES.public);
+          setShowLoginPage(false);
           setCurrentTab('fieldReporting');
           setIsReportModalOpen(true);
         }}
@@ -239,14 +253,16 @@ export default function App() {
       {/* Top Header */}
       <Header
         currentTab={currentTab}
-        onSelectTab={setCurrentTab}
+        onSelectTab={handleNavigateTab}
         currentUser={currentUser}
         theme={theme}
         onToggleTheme={toggleTheme}
         onOpenReportModal={() => setIsReportModalOpen(true)}
         unreadAlertsCount={unreadAlertsCount}
-        onOpenAlerts={() => setCurrentTab('alerts')}
+        onOpenAlerts={() => handleNavigateTab('alerts')}
         onToggleSidebar={handleToggleSidebar}
+        onSwitchRole={handleSwitchRole}
+        onOpenLogin={() => setShowLoginPage(true)}
         currentLang={currentLang}
         onSelectLang={handleSelectLang}
       />
@@ -256,7 +272,7 @@ export default function App() {
         {/* Left Navigation Sidebar */}
         <Sidebar
           currentTab={currentTab}
-          onSelectTab={setCurrentTab}
+          onSelectTab={handleNavigateTab}
           currentUser={currentUser}
           onSwitchRole={handleSwitchRole}
           onLogout={handleLogout}
@@ -336,6 +352,7 @@ export default function App() {
             <FieldReportingView
               onSubmitReport={handleReportIncident}
               onNavigateTab={handleNavigateTab}
+              currentUser={currentUser}
               theme={theme}
             />
           )}
